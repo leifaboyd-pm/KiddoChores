@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Boyd Family — Chores &amp; Crew</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJCb3lkIGZhbWlseSBzZWFsIj48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMCIgZmlsbD0iIzBFMkE0NyIvPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjI3IiBmaWxsPSJub25lIiBzdHJva2U9IiNENEE5M0MiIHN0cm9rZS13aWR0aD0iMC43NSIvPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjIzIiBmaWxsPSJub25lIiBzdHJva2U9IiNENEE5M0MiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjYiLz48cGF0aCBkPSJNMjIgMjAgSDM4IEM0MiAyMCA0NC41IDIyLjUgNDQuNSAyNiBDNDQuNSAyOC41IDQzIDMwLjUgNDEgMzEgQzQzLjUgMzEuNSA0NiAzNCA0NiAzNy41IEM0NiA0MS41IDQzIDQ0LjUgMzkgNDQuNSBIMjIgWiIgZmlsbD0iI0Q0QTkzQyIvPjxwYXRoIGQ9Ik0yNyAyNCBWMjguNSBIMzYgQzM3LjUgMjguNSAzOC41IDI3LjUgMzguNSAyNiBDMzguNSAyNC41IDM3LjUgMjQgMzYgMjQgWiIgZmlsbD0iIzBFMkE0NyIvPjxwYXRoIGQ9Ik0yNyAzMyBWNDAuNSBIMzggQzM5LjUgNDAuNSA0MSAzOSA0MSAzNy41IEM0MSAzNiAzOS41IDMzIDM4IDMzIFoiIGZpbGw9IiMwRTJBNDciLz48Y2lyY2xlIGN4PSIxNCIgY3k9IjMyIiByPSIxIiBmaWxsPSIjRDRBOTNDIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSIzMiIgcj0iMSIgZmlsbD0iI0Q0QTkzQyIvPjwvc3ZnPgo=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { background: #F7F4ED; }
+  html { color-scheme: light; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif;
+    background: #F7F4ED; color: #0E2A47; -webkit-font-smoothing: antialiased;
+    min-height: 100vh; }
+  #app { background: #F7F4ED; min-height: 100vh; }
+  #app.kid-mode { background: linear-gradient(135deg, #0E2A47 0%, #1a3a5c 100%); }
+  .display-font { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.02em; }
+  .mono-font { font-family: 'JetBrains Mono', monospace; }
+  button { font-family: inherit; }
+  input, select, textarea { font-family: inherit; }
+
+  @keyframes confetti-burst {
+    0% { transform: translate(0,0) scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1) rotate(var(--r)); opacity: 0; }
+  }
+  .confetti-piece { position: absolute; width: 10px; height: 14px;
+    pointer-events: none; animation: confetti-burst 1.4s cubic-bezier(.2,.8,.4,1) forwards; }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,169,60,0.6); }
+    50% { box-shadow: 0 0 0 14px rgba(212,169,60,0); }
+  }
+  .pulse-glow { animation: pulse-glow 2s infinite; }
+
+  @keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .slide-up { animation: slide-up 0.5s cubic-bezier(.2,.8,.4,1) both; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, #D4A93C 0%, #F5D478 50%, #D4A93C 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; animation: shimmer 3s linear infinite;
+  }
+
+  .grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .ornate-rule { height: 1px; background: linear-gradient(90deg, transparent, #D4A93C 20%, #D4A93C 80%, transparent); position: relative; }
+  .ornate-rule::after { content: '✦'; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); background: #F7F4ED; padding: 0 12px; color: #D4A93C; font-size: 10px; }
+
+  .btn { padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;
+    border: none; cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: #0E2A47; color: #F7F4ED; }
+  .btn-primary:hover { background: #1a3a5c; transform: translateY(-1px); }
+  .btn-gold { background: #D4A93C; color: #0E2A47; font-weight: 700; }
+  .btn-gold:hover { background: #E5BB4D; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: #0E2A47; padding: 8px 14px; font-weight: 500; font-size: 13px; border: 1px solid rgba(14,42,71,0.2); }
+  .btn-ghost:hover { background: rgba(14,42,71,0.05); border-color: #0E2A47; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .card { background: white; border-radius: 16px; border: 1px solid rgba(14,42,71,0.08); box-shadow: 0 1px 3px rgba(14,42,71,0.04); }
+
+  .input-base { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(14,42,71,0.15); font-size: 14px; background: white; color: #0E2A47; transition: border 0.15s; }
+  .input-base:focus { outline: none; border-color: #D4A93C; box-shadow: 0 0 0 3px rgba(212,169,60,0.1); }
+
+  /* Kid mode = high contrast, big buttons, playful */
+  .kid-mode { background: linear-gradient(135deg, #0E2A47 0%, #1a3a5c 100%); color: #F7F4ED; }
+  .kid-mode .card { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(212,169,60,0.3); color: #F7F4ED; }
+  .kid-mode .ornate-rule::after { background: #0E2A47; }
+  .kid-mode .input-base { background: rgba(255,255,255,0.1); color: #F7F4ED; border-color: rgba(212,169,60,0.3); }
+  .kid-mode .btn-ghost { color: #F7F4ED; border-color: rgba(247,244,237,0.3); }
+  .kid-mode .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x::-webkit-scrollbar { height: 0; }
+
+  .progress-track { height: 6px; background: rgba(14,42,71,0.08); border-radius: 100px; overflow: hidden; }
+  .kid-mode .progress-track { background: rgba(255,255,255,0.15); }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #D4A93C, #F5D478); border-radius: 100px; transition: width 0.6s cubic-bezier(.2,.8,.4,1); }
+
+  .pixel-avatar { width: 100%; height: 100%; display: grid;
+    grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+    image-rendering: pixelated; }
+  .avatar-wrap { overflow: hidden; flex-shrink: 0; }
+  .avatar-photo { width: 100%; height: 100%; object-fit: cover; }
+
+  .room-tile { aspect-ratio: 1; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; padding: 8px; text-align: center;
+    font-size: 11px; font-weight: 600; border: 1px solid; }
+  .room-tile:hover { transform: scale(1.04); }
+  .room-clean { background: #ECF6E5; color: #2D5016; border-color: #B5DBA0; }
+  .room-okay  { background: #FFF4D6; color: #6B4F00; border-color: #F0D88A; }
+  .room-needs { background: #FCE3DA; color: #6B1A00; border-color: #E89B7E; }
+
+  .tab-btn { padding: 8px 14px; border-radius: 100px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; background: transparent; color: rgba(14,42,71,0.6);
+    border: 1px solid transparent; white-space: nowrap; }
+  .tab-btn:hover { color: #0E2A47; }
+  .tab-btn-active { background: #0E2A47; color: #F7F4ED; }
+  .kid-mode .tab-btn { color: rgba(247,244,237,0.6); }
+  .kid-mode .tab-btn:hover { color: #F7F4ED; }
+  .kid-mode .tab-btn-active { background: #D4A93C; color: #0E2A47; }
+
+  .fab { position: fixed; right: 24px; bottom: 24px; width: 56px; height: 56px; border-radius: 100px;
+    background: #D4A93C; color: #0E2A47; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(212,169,60,0.4); z-index: 50; transition: all 0.2s; }
+  .fab:hover { transform: scale(1.06); }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(14,42,71,0.5); backdrop-filter: blur(4px); z-index: 60;
+    display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal-body { background: #F7F4ED; border-radius: 16px; padding: 24px;
+    max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+  .modal-close { position: absolute; right: 14px; top: 14px;
+    background: transparent; border: none; cursor: pointer; opacity: 0.5; padding: 6px; }
+
+  .toast { position: fixed; left: 50%; top: 24px; transform: translateX(-50%);
+    background: #0E2A47; color: #F7F4ED; padding: 14px 20px;
+    border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 90;
+    max-width: calc(100vw - 48px); display: flex; align-items: center; gap: 10px; }
+
+  .field-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; opacity: 0.6; font-weight: 600; display: block; margin-bottom: 6px; }
+
+  .reward-tile { background: white; border-radius: 14px; padding: 0; overflow: hidden;
+    border: 1px solid rgba(14,42,71,0.1); transition: all 0.2s; cursor: pointer; text-align: left; }
+  .reward-tile:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,42,71,0.08); border-color: #D4A93C; }
+  .reward-tile:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reward-tile-img { width: 100%; aspect-ratio: 16/10; background: linear-gradient(135deg, #0E2A47, #1a3a5c);
+    display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .reward-tile-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 10px;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .badge-gold { background: #D4A93C; color: #0E2A47; }
+  .badge-green { background: #ECF6E5; color: #2D5016; }
+  .badge-red { background: #FCE3DA; color: #6B1A00; }
+  .badge-yellow { background: #FFF4D6; color: #6B4F00; }
+
+  .upload-area { border: 2px dashed rgba(14,42,71,0.2); border-radius: 12px; padding: 24px; text-align: center;
+    cursor: pointer; transition: all 0.15s; background: white; }
+  .upload-area:hover { border-color: #D4A93C; background: rgba(212,169,60,0.04); }
+
+  @media (max-width: 640px) {
+    .hide-mobile { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+/* ============================================================
+   FIREBASE CONFIG — kiddo-chores project
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyD9iCH1BZXmE_ram7k9c5NpacSLHOEZ59c",
+  authDomain: "kiddo-chores.firebaseapp.com",
+  projectId: "kiddo-chores",
+  storageBucket: "kiddo-chores.firebasestorage.app",
+  messagingSenderId: "666913319916",
+  appId: "1:666913319916:web:65a4e955517c471e276ec9",
+  measurementId: "G-QY6H89W5C0"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+
+// Single shared family doc — everyone with the URL reads/writes the same data.
+// To run separate households later, change FAMILY_ID per deployment or read from URL.
+const FAMILY_ID = "boyd";
+const familyDocRef = doc(firestore, "families", FAMILY_ID);
+
+// Enable offline persistence so the app works briefly without a connection.
+// (Best-effort — fails silently if multiple tabs are open, which is fine.)
+try { await enableIndexedDbPersistence(firestore); } catch (e) { /* multi-tab or unsupported */ }
+
+/* ============================================================
+   DATA LAYER — Firestore-backed
+   - load(): one-shot read of the family doc
+   - save(state): write the full doc
+   - uploadImage(file): uploads to Cloud Storage, returns download URL
+   - subscribe(cb): live updates from other family members' devices
+   ============================================================ */
+const db = {
+  async load() {
+    try {
+      const snap = await getDoc(familyDocRef);
+      return snap.exists() ? snap.data() : null;
+    } catch (e) {
+      console.error("Firestore load failed", e);
+      return null;
+    }
+  },
+
+  async save(state) {
+    try {
+      // Firestore rejects undefined values; strip them.
+      const clean = JSON.parse(JSON.stringify(state));
+      await setDoc(familyDocRef, clean);
+    } catch (e) {
+      console.error("Firestore save failed", e);
+      throw e;
+    }
+  },
+
+  async uploadImage(file) {
+    // First resize client-side (same logic as before — keeps storage costs low)
+    const resizedBlob = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 600;
+          const scale = Math.min(1, max / Math.max(img.width, img.height));
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob(b => b ? resolve(b) : reject(new Error("blob failed")), 'image/jpeg', 0.85);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    // Upload to Cloud Storage under the family path
+    const path = `families/${FAMILY_ID}/uploads/${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
+    const ref = storageRef(storage, path);
+    await uploadBytes(ref, resizedBlob, { contentType: 'image/jpeg' });
+    return await getDownloadURL(ref);
+  },
+
+  // Live sync — calls cb(state) whenever the family doc changes (any device).
+  subscribe(cb) {
+    return onSnapshot(familyDocRef, (snap) => {
+      if (snap.exists() && !snap.metadata.hasPendingWrites) {
+        cb(snap.data());
+      }
+    }, (err) => console.error("Firestore subscribe error", err));
+  },
+};
+
+// Expose for debugging in the browser console
+window.__db = db;
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+const todayISO = () => new Date().toISOString().slice(0,10);
+const nowISO   = () => new Date().toISOString();
+const dayDelta = (rec) => rec === "daily" ? 1 : rec === "weekly" ? 7 : rec === "monthly" ? 30 : null;
+const addDaysISO = (iso, d) => { const x = new Date(iso); x.setDate(x.getDate()+d); return x.toISOString().slice(0,10); };
+const fmtDollars = (n) => `$${(n||0).toFixed(2)}`;
+const fmtRelative = (iso) => {
+  if (!iso) return "—";
+  const t = todayISO();
+  if (iso === t) return "Today";
+  if (iso === addDaysISO(t,1)) return "Tomorrow";
+  if (iso < t) return `Overdue (${iso})`;
+  return iso;
+};
+const uid = (p) => p + "_" + Date.now() + "_" + Math.random().toString(36).slice(2,7);
+
+const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+})[c]);
+
+const PALETTE = ["#D4A93C", "#0A4F37", "#0A3091", "#9C2B2B", "#6B2A8A", "#1F6E8C", "#C4623F", "#0E2A47"];
+
+/* Chore library — curated suggestions with sensible defaults.
+   Tap one in the wizard to autofill title, room, points, dollars, recurrence. */
+const CHORE_LIBRARY = [
+  // Kitchen
+  { title: "Empty dishwasher",    room: "Kitchen", points: 2, dollars: 1.00, recurrence: "daily",  photo: false },
+  { title: "Load dishwasher",     room: "Kitchen", points: 2, dollars: 1.00, recurrence: "daily",  photo: false },
+  { title: "Wipe counters",       room: "Kitchen", points: 1, dollars: 0,    recurrence: "daily",  photo: false },
+  { title: "Take out trash",      room: "Kitchen", points: 2, dollars: 1.50, recurrence: "weekly", photo: false },
+  { title: "Take out recycling",  room: "Kitchen", points: 2, dollars: 1.00, recurrence: "weekly", photo: false },
+  { title: "Sweep kitchen floor", room: "Kitchen", points: 2, dollars: 1.00, recurrence: "weekly", photo: true  },
+  { title: "Mop kitchen floor",   room: "Kitchen", points: 3, dollars: 2.00, recurrence: "weekly", photo: true  },
+  { title: "Clean out fridge",    room: "Kitchen", points: 4, dollars: 3.00, recurrence: "weekly", photo: true  },
+  // Living Room
+  { title: "Vacuum living room",  room: "Living Room", points: 3, dollars: 2.00, recurrence: "weekly", photo: true  },
+  { title: "Dust surfaces",       room: "Living Room", points: 2, dollars: 1.50, recurrence: "weekly", photo: true  },
+  { title: "Tidy living room",    room: "Living Room", points: 1, dollars: 0,    recurrence: "daily",  photo: false },
+  // Bathroom
+  { title: "Clean bathroom sink", room: "Bathroom", points: 3, dollars: 2.50, recurrence: "weekly", photo: true  },
+  { title: "Clean toilet",        room: "Bathroom", points: 4, dollars: 3.00, recurrence: "weekly", photo: true  },
+  { title: "Clean shower/tub",    room: "Bathroom", points: 5, dollars: 3.50, recurrence: "weekly", photo: true  },
+  { title: "Replace towels",      room: "Bathroom", points: 1, dollars: 0,    recurrence: "weekly", photo: false },
+  // Bedrooms
+  { title: "Make bed",            room: "Bedrooms", points: 1, dollars: 0,    recurrence: "daily",  photo: false },
+  { title: "Tidy bedroom",        room: "Bedrooms", points: 2, dollars: 1.00, recurrence: "daily",  photo: true  },
+  { title: "Vacuum bedroom",      room: "Bedrooms", points: 2, dollars: 1.50, recurrence: "weekly", photo: true  },
+  { title: "Change bedsheets",    room: "Bedrooms", points: 3, dollars: 2.00, recurrence: "weekly", photo: true  },
+  // Laundry
+  { title: "Sort laundry",        room: "Bedrooms", points: 1, dollars: 0.50, recurrence: "weekly", photo: false },
+  { title: "Fold laundry",        room: "Bedrooms", points: 3, dollars: 2.00, recurrence: "weekly", photo: true  },
+  { title: "Put laundry away",    room: "Bedrooms", points: 2, dollars: 1.00, recurrence: "weekly", photo: true  },
+  // Yard
+  { title: "Mow lawn",            room: "Yard", points: 5, dollars: 8.00, recurrence: "weekly",  photo: true },
+  { title: "Pull weeds",          room: "Yard", points: 4, dollars: 3.00, recurrence: "weekly",  photo: true },
+  { title: "Water plants",        room: "Yard", points: 1, dollars: 0.50, recurrence: "daily",   photo: false },
+  { title: "Rake leaves",         room: "Yard", points: 4, dollars: 4.00, recurrence: "weekly",  photo: true },
+  // Garage
+  { title: "Sweep garage",        room: "Garage", points: 4, dollars: 3.00, recurrence: "monthly", photo: true },
+  { title: "Organize garage",     room: "Garage", points: 5, dollars: 5.00, recurrence: "monthly", photo: true },
+  // Pet care
+  { title: "Feed pet",            room: "Kitchen", points: 1, dollars: 0,    recurrence: "daily", photo: false },
+  { title: "Walk dog",            room: "Yard",    points: 2, dollars: 1.00, recurrence: "daily", photo: false },
+  { title: "Clean litter box",    room: "Bathroom", points: 2, dollars: 1.50, recurrence: "weekly", photo: true },
+  // Other
+  { title: "Homework done",       room: "Bedrooms", points: 2, dollars: 0,    recurrence: "daily", photo: false },
+  { title: "Practice instrument", room: "Bedrooms", points: 2, dollars: 0,    recurrence: "daily", photo: false },
+];
+
+/* ============================================================
+   DEFAULT SEED STATE
+   ============================================================ */
+const DEFAULT_STATE = {
+  members: [
+    { id: "p1", name: "Parent",  role: "parent", color: "#0E2A47", avatar: 0, photoUrl: null, allowance: 0, pointsAllTime: 0, streak: 0, lastActive: null },
+    { id: "k1", name: "Kid One", role: "kid",    color: "#D4A93C", avatar: 3, photoUrl: null, allowance: 0, pointsAllTime: 0, streak: 0, lastActive: null },
+    { id: "k2", name: "Kid Two", role: "kid",    color: "#0A4F37", avatar: 5, photoUrl: null, allowance: 0, pointsAllTime: 0, streak: 0, lastActive: null },
+  ],
+  rooms: [
+    { id: "r1", name: "Kitchen",     emoji: "🍳", health: 0.7  },
+    { id: "r2", name: "Living Room", emoji: "🛋️", health: 0.85 },
+    { id: "r3", name: "Bathroom",    emoji: "🛁", health: 0.4  },
+    { id: "r4", name: "Bedrooms",    emoji: "🛏️", health: 0.6  },
+    { id: "r5", name: "Yard",        emoji: "🌳", health: 0.5  },
+    { id: "r6", name: "Garage",      emoji: "🚗", health: 0.3  },
+  ],
+  chores: [],
+  rewards: [
+    { id: "rw1", title: "Movie night pick",     description: "You choose the movie. Whole family watches.", cost: 20,  category: "privilege", emoji: "🎬", imageUrl: null, stock: -1 },
+    { id: "rw2", title: "1 hr extra screen time", description: "Use it within the week.", cost: 15, category: "privilege", emoji: "📱", imageUrl: null, stock: -1 },
+    { id: "rw3", title: "Skip a chore (1x)",    description: "Skip any one chore. No questions asked.", cost: 30, category: "privilege", emoji: "🎟️", imageUrl: null, stock: 3 },
+    { id: "rw4", title: "$5 cash bonus",        description: "Loaded to Greenlight.", cost: 50, category: "cash", emoji: "💵", imageUrl: null, stock: -1 },
+    { id: "rw5", title: "Amazon gift card $10", description: "Digital code emailed within 24 hrs.", cost: 100, category: "giftcard", emoji: "🛒", imageUrl: null, stock: 2 },
+    { id: "rw6", title: "Roblox gift card $10", description: "Digital code redeemable in-app.", cost: 100, category: "giftcard", emoji: "🎮", imageUrl: null, stock: 1 },
+    { id: "rw7", title: "Ice cream trip",       description: "Family outing for ice cream, your pick.", cost: 40, category: "experience", emoji: "🍦", imageUrl: null, stock: -1 },
+    { id: "rw8", title: "Stay up 30 min late",  description: "One school night, your choice.", cost: 25, category: "privilege", emoji: "🌙", imageUrl: null, stock: -1 },
+  ],
+  redemptions: [], // { id, rewardId, by, when, status: 'pending'|'fulfilled'|'denied' }
+  completions: [], // { id, choreId, by, when, photoUrl, status, points, dollars, bonus }
+  payouts: [],     // { id, kidId, amount, when, paidVia }
+  activeUserId: "p1",
+  kidMode: false,
+  bonusOfferedToday: null,
+};
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+let state = null;
+
+const view = {
+  tab: "today",
+  showAdd: false,
+  editingChoreId: null,
+  showRewardsShop: false,
+  showPayout: false,
+  showSettings: false,
+  showProfile: null, // memberId
+  showAddReward: false,
+  editingRewardId: null,
+  pendingPhotoChoreId: null,
+  userMenuOpen: false,
+  settingsTab: "members",
+  rewardCategoryFilter: "all",
+  // Wizard state — persists across "Add another" loop
+  wizardStep: 0, // 0=title, 1=who, 2=when, 3=points, 4=confirm
+  wizardDraft: null, // current chore being built
+  wizardLastAssignee: null, // remembers last kid for fast multi-add
+  wizardLastRecurrence: "weekly",
+  wizardJustAddedCount: 0,
+  confirmingDeleteRewardId: null,
+  confirmingDeleteChoreId: null,
+  roomFilter: null, // when set, Today view filters by this room id
+};
+
+let toastTimer = null;
+
+// Debounced save — coalesces rapid state changes into one Firestore write.
+// Also tracks status so we can show a tiny indicator if needed.
+let saveTimer = null;
+let saveStatus = "idle"; // "saving" | "saved" | "error" | "idle"
+let suppressNextRemoteUpdate = false;
+
+function scheduleSave() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveStatus = "saving";
+  saveTimer = setTimeout(async () => {
+    try {
+      suppressNextRemoteUpdate = true;
+      await db.save(state);
+      saveStatus = "saved";
+    } catch (e) {
+      saveStatus = "error";
+      showToast("Save failed", "Will retry on next change");
+    }
+  }, 600);
+}
+
+function setState(patch) {
+  state = { ...state, ...patch };
+  scheduleSave();
+  render();
+}
+function setView(patch) {
+  Object.assign(view, patch);
+  render();
+}
+
+/* ============================================================
+   ICONS (inline SVG so no external deps)
+   ============================================================ */
+const ic = {
+  check: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  circle: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>',
+  plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+  trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+  camera: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>',
+  dollar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+  flame: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+  trophy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>',
+  sparkles: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z"></path></svg>',
+  star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+  zap: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+  settings: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+  x: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+  edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>',
+  chevronDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>',
+  chevronRight: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>',
+  alert: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+  calendar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+  download: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+  trending: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+  home: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
+  award: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>',
+  upload: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>',
+  store: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M3 9a3 3 0 0 0 6 0a3 3 0 0 0 6 0a3 3 0 0 0 6 0"></path></svg>',
+  refresh: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>',
+};
+
+/* ============================================================
+   COMPONENTS — render functions returning HTML strings + handlers
+   ============================================================ */
+
+function pixelAvatarHTML(seed, color, bg, size = 56) {
+  // deterministic 8x8 mirrored
+  let s = (seed||0) * 9301 + 49297;
+  const cells = [];
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 4; x++) {
+      s = (s * 9301 + 49297) % 233280;
+      const on = (s / 233280) > 0.55;
+      cells.push({ x, y, on });
+      cells.push({ x: 7-x, y, on });
+    }
+  }
+  const grid = Array.from({length:64}, (_,i) => {
+    const x = i%8, y = Math.floor(i/8);
+    const c = cells.find(c => c.x===x && c.y===y);
+    return `<div style="background:${c?.on ? color : 'transparent'}"></div>`;
+  }).join('');
+  return `<div class="avatar-wrap" style="width:${size}px;height:${size}px;background:${bg};border-radius:${size/4}px;padding:${size/12}px;">
+    <div class="pixel-avatar" style="width:100%;height:100%">${grid}</div>
+  </div>`;
+}
+
+function avatarHTML(member, size = 44) {
+  if (member.photoUrl) {
+    return `<div class="avatar-wrap" style="width:${size}px;height:${size}px;border-radius:${size/4}px;background:${member.color}">
+      <img class="avatar-photo" src="${escapeHtml(member.photoUrl)}" alt="${escapeHtml(member.name)}" style="border-radius:${size/4}px"/>
+    </div>`;
+  }
+  return pixelAvatarHTML(member.avatar, member.color, "#0E2A47", size);
+}
+
+/* === confetti and toast === */
+function fireConfetti() {
+  const cols = ["#D4A93C", "#0A4F37", "#0A3091", "#9C2B2B", "#F5D478", "#1F6E8C"];
+  const root = document.createElement('div');
+  root.style.cssText = "position:fixed;left:50%;top:50%;pointer-events:none;z-index:100";
+  document.body.appendChild(root);
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement('div');
+    p.className = "confetti-piece";
+    p.style.background = cols[Math.floor(Math.random()*cols.length)];
+    p.style.setProperty('--tx', `${(Math.random()-0.5)*400}px`);
+    p.style.setProperty('--ty', `${-200 - Math.random()*200}px`);
+    p.style.setProperty('--r', `${(Math.random()-0.5)*720}deg`);
+    p.style.animationDelay = `${Math.random()*0.15}s`;
+    root.appendChild(p);
+  }
+  setTimeout(() => root.remove(), 1800);
+}
+
+function showToast(msg, sub = "") {
+  const existing = document.getElementById('toast');
+  if (existing) existing.remove();
+  if (toastTimer) clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.id = 'toast';
+  t.className = "toast slide-up";
+  t.innerHTML = `<span style="color:#D4A93C">${ic.sparkles}</span>
+    <div><div style="font-weight:700;font-size:14px">${escapeHtml(msg)}</div>
+    ${sub ? `<div style="font-size:12px;opacity:0.8">${escapeHtml(sub)}</div>` : ''}</div>`;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 2800);
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+function getActiveUser() {
+  return state.members.find(m => m.id === state.activeUserId) || state.members[0];
+}
+
+function completeChore(choreId, attachedPhotoUrl = null) {
+  const chore = state.chores.find(c => c.id === choreId);
+  if (!chore) return;
+  if (chore.photoRequired && !attachedPhotoUrl) {
+    setView({ pendingPhotoChoreId: choreId });
+    return;
+  }
+  const user = getActiveUser();
+  const isBonus = state.bonusOfferedToday?.choreId === choreId;
+  const mult = isBonus ? state.bonusOfferedToday.multiplier : 1;
+  const earnedPts = chore.points * mult;
+  const earnedDollars = chore.dollars * mult;
+
+  // Kids always need approval; parents auto-approve their own
+  const needsApproval = user.role === "kid" || chore.photoRequired;
+
+  const completion = {
+    id: uid("co"),
+    choreId, by: user.id, when: nowISO(),
+    photoUrl: attachedPhotoUrl,
+    status: needsApproval ? "pending" : "approved",
+    points: earnedPts, dollars: earnedDollars, bonus: isBonus,
+  };
+
+  let newChores = state.chores.map(c => {
+    if (c.id !== choreId) return c;
+    const dd = dayDelta(c.recurrence);
+    return {
+      ...c,
+      status: completion.status === "approved" ? (dd ? "open" : "done") : "pending",
+      nextDue: dd ? addDaysISO(todayISO(), dd) : c.nextDue,
+    };
+  });
+  // bump room health a bit
+  let newRooms = state.rooms.map(r =>
+    r.id === chore.roomId ? { ...r, health: Math.min(1, r.health + 0.1) } : r
+  );
+
+  let newMembers = state.members;
+  if (completion.status === "approved") {
+    newMembers = state.members.map(m => m.id === user.id ? {
+      ...m,
+      pointsAllTime: m.pointsAllTime + earnedPts,
+      allowance: m.allowance + earnedDollars,
+      streak: (m.lastActive === todayISO() || m.lastActive === addDaysISO(todayISO(), -1)) ? m.streak + 1 : 1,
+      lastActive: todayISO(),
+    } : m);
+  }
+
+  setState({
+    chores: newChores, rooms: newRooms, members: newMembers,
+    completions: [completion, ...state.completions],
+  });
+  setView({ pendingPhotoChoreId: null });
+
+  fireConfetti();
+  if (completion.status === "approved") {
+    showToast(`+${earnedPts} pts${earnedDollars ? ` · ${fmtDollars(earnedDollars)}` : ''}${isBonus ? ' · 2× BONUS!' : ''}`, chore.title);
+  } else {
+    showToast("Submitted for approval", chore.title);
+  }
+}
+
+function approveCompletion(compId, approve) {
+  const comp = state.completions.find(c => c.id === compId);
+  if (!comp) return;
+  const chore = state.chores.find(c => c.id === comp.choreId);
+  const member = state.members.find(m => m.id === comp.by);
+
+  let newCompletions = state.completions.map(c => c.id === compId ? { ...c, status: approve ? "approved" : "rejected" } : c);
+  let newMembers = state.members;
+  let newChores = state.chores;
+  if (approve) {
+    newMembers = state.members.map(m => m.id === comp.by ? {
+      ...m,
+      pointsAllTime: m.pointsAllTime + comp.points,
+      allowance: m.allowance + comp.dollars,
+      streak: (m.lastActive === todayISO() || m.lastActive === addDaysISO(todayISO(), -1)) ? m.streak + 1 : 1,
+      lastActive: todayISO(),
+    } : m);
+    newChores = state.chores.map(c => {
+      if (c.id !== comp.choreId) return c;
+      const dd = dayDelta(c.recurrence);
+      return { ...c, status: dd ? "open" : "done", nextDue: dd ? addDaysISO(todayISO(), dd) : c.nextDue };
+    });
+  } else {
+    newChores = state.chores.map(c => c.id === comp.choreId ? { ...c, status: "open" } : c);
+  }
+  setState({ completions: newCompletions, members: newMembers, chores: newChores });
+  if (approve) {
+    fireConfetti();
+    showToast(`Approved! ${member?.name} earned ${comp.points} pts`, chore?.title);
+  } else {
+    showToast("Sent back for redo", chore?.title);
+  }
+}
+
+function redeemReward(rewardId) {
+  const r = state.rewards.find(x => x.id === rewardId);
+  if (!r) return;
+  const user = getActiveUser();
+  if (user.pointsAllTime < r.cost) { showToast("Not enough points yet"); return; }
+  if (r.stock === 0) { showToast("Out of stock"); return; }
+
+  const redemption = {
+    id: uid("rd"), rewardId, by: user.id, when: nowISO(), status: "pending"
+  };
+  const newRewards = state.rewards.map(rr =>
+    rr.id === rewardId && rr.stock > 0 ? { ...rr, stock: rr.stock - 1 } : rr
+  );
+  const newMembers = state.members.map(m =>
+    m.id === user.id ? { ...m, pointsAllTime: m.pointsAllTime - r.cost } : m
+  );
+  setState({
+    rewards: newRewards, members: newMembers,
+    redemptions: [redemption, ...state.redemptions],
+  });
+  fireConfetti();
+  showToast(`Redeemed: ${r.title}`, "Parent will fulfill soon");
+  setView({ showRewardsShop: false });
+}
+
+function fulfillRedemption(redId, fulfilled) {
+  const red = state.redemptions.find(r => r.id === redId);
+  if (!red) return;
+  const reward = state.rewards.find(rw => rw.id === red.rewardId);
+  let newRedemptions = state.redemptions.map(r =>
+    r.id === redId ? { ...r, status: fulfilled ? "fulfilled" : "denied" } : r
+  );
+  let newMembers = state.members;
+  let newRewards = state.rewards;
+  if (!fulfilled && reward) {
+    // refund points and stock
+    newMembers = state.members.map(m =>
+      m.id === red.by ? { ...m, pointsAllTime: m.pointsAllTime + reward.cost } : m
+    );
+    newRewards = state.rewards.map(rr =>
+      rr.id === reward.id && rr.stock >= 0 ? { ...rr, stock: rr.stock + 1 } : rr
+    );
+  }
+  setState({ redemptions: newRedemptions, members: newMembers, rewards: newRewards });
+  showToast(fulfilled ? "Marked fulfilled" : "Denied — points refunded");
+}
+
+function addChoreFromWizard(d) {
+  const newChore = {
+    id: uid("c"),
+    title: d.title.trim() || "Untitled chore",
+    roomId: d.roomId || state.rooms[0]?.id,
+    assignee: d.assignee,
+    points: +d.points || 0,
+    dollars: +d.dollars || 0,
+    recurrence: d.recurrence,
+    photoRequired: !!d.photoRequired,
+    status: "open",
+    createdAt: nowISO(),
+    nextDue: todayISO(),
+  };
+  setState({ chores: [newChore, ...state.chores] });
+}
+
+function recordPayout(kidId, amount, via) {
+  setState({
+    payouts: [{ id: uid("pay"), kidId, amount, when: nowISO(), paidVia: via }, ...state.payouts],
+    members: state.members.map(m => m.id === kidId ? { ...m, allowance: Math.max(0, m.allowance - amount) } : m),
+  });
+  showToast(`${fmtDollars(amount)} marked paid via ${via}`);
+}
+
+function exportCSV() {
+  const rows = [["When","Kid","Chore","Points","Dollars","Status"]];
+  state.completions.forEach(co => {
+    const chore = state.chores.find(c => c.id === co.choreId);
+    const member = state.members.find(m => m.id === co.by);
+    rows.push([co.when, member?.name || "?", chore?.title || "?", co.points, co.dollars.toFixed(2), co.status]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `boyd_chores_${todayISO()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   VIEW BUILDERS — all return HTML strings
+   ============================================================ */
+
+function buildHeader() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const syncPill = saveStatus === "saving" ? `<span class="mono-font" style="font-size:9px;letter-spacing:0.1em;opacity:0.5;text-transform:uppercase">Saving…</span>` :
+                   saveStatus === "error"  ? `<span class="mono-font" style="font-size:9px;letter-spacing:0.1em;color:#9C2B2B;text-transform:uppercase">Offline</span>` : '';
+  return `
+    <header style="padding:20px 20px 12px;max-width:1100px;margin:0 auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1">
+          <img src="${document.querySelector('link[rel=icon]').href}" alt="" style="width:40px;height:40px;flex-shrink:0"/>
+          <div style="min-width:0">
+            <div class="mono-font" style="font-size:9px;letter-spacing:0.16em;opacity:0.6;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Boyd Family Ops · est. 2026 ${syncPill ? '· ' + syncPill.replace(/<\/?span[^>]*>/g, '') : ''}</div>
+            <div class="display-font" style="font-size:22px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chores &amp; Crew</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          ${userSwitcherHTML()}
+          ${isParent ? `<button class="btn btn-ghost" data-action="open-settings" style="padding:8px;flex-shrink:0" aria-label="Manage">${ic.settings}</button>` : ''}
+        </div>
+      </div>
+      <div style="margin-top:18px" class="ornate-rule"></div>
+    </header>`;
+}
+
+function userSwitcherHTML() {
+  const user = getActiveUser();
+  const open = view.userMenuOpen;
+  return `
+    <div style="position:relative">
+      <button class="btn btn-ghost" data-action="toggle-user-menu" style="padding:6px 10px 6px 6px">
+        ${avatarHTML(user, 28)}
+        <span style="font-weight:600">${escapeHtml(user.name)}</span>
+        ${ic.chevronDown}
+      </button>
+      ${open ? `
+        <div style="position:absolute;right:0;top:110%;width:240px;max-width:calc(100vw - 32px);background:white;border-radius:12px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,0.12);z-index:30;border:1px solid rgba(14,42,71,0.08);color:#0E2A47">
+          ${state.members.map(m => `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${m.id===state.activeUserId ? '#F7F4ED' : 'transparent'};border-radius:8px">
+              <button data-action="switch-user" data-user-id="${m.id}" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:transparent;border:none;cursor:pointer;text-align:left;color:#0E2A47;padding:0">
+                ${avatarHTML(m, 28)}
+                <div style="flex:1;min-width:0;overflow:hidden">
+                  <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(m.name)}</div>
+                  <div style="font-size:11px;opacity:0.5;text-transform:uppercase;letter-spacing:0.05em">${m.role}</div>
+                </div>
+              </button>
+              <button data-action="open-profile" data-user-id="${m.id}" style="background:transparent;border:none;cursor:pointer;opacity:0.5;padding:6px;flex-shrink:0;color:#0E2A47" title="Edit profile photo">${ic.camera}</button>
+            </div>
+          `).join('')}
+          <div style="height:1px;background:rgba(14,42,71,0.08);margin:6px 0"></div>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px;cursor:pointer;color:#0E2A47">
+            <input type="checkbox" ${state.kidMode ? 'checked' : ''} data-action="toggle-kid-mode"/>
+            Kid mode UI
+          </label>
+        </div>
+      ` : ''}
+    </div>`;
+}
+
+function buildHeroStats() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const pendingApprovals = state.completions.filter(c => c.status === "pending");
+  const pendingRedemptions = state.redemptions.filter(r => r.status === "pending");
+  const todayChores = state.chores.filter(c => c.status === "open" && (c.nextDue <= todayISO() || c.recurrence === "once"));
+  const totalOwed = state.members.filter(m => m.role === "kid").reduce((s,m) => s + m.allowance, 0);
+  const myDue = todayChores.filter(c => c.assignee === user.id || !c.assignee);
+
+  const cards = [];
+  if (isParent) {
+    cards.push(statCardHTML("Owed to crew", fmtDollars(totalOwed), ic.dollar, "#0A4F37"));
+    cards.push(statCardHTML("Pending review", String(pendingApprovals.length + pendingRedemptions.length), ic.alert, "#D4A93C", pendingApprovals.length + pendingRedemptions.length > 0));
+    cards.push(statCardHTML("Open today", String(todayChores.length), ic.calendar, "#0A3091"));
+  } else {
+    cards.push(statCardHTML("Your wallet", fmtDollars(user.allowance), ic.dollar, "#0A4F37"));
+    cards.push(statCardHTML("Your streak", `${user.streak} 🔥`, ic.flame, "#D4A93C"));
+    cards.push(statCardHTML("Your points", String(user.pointsAllTime), ic.star, "#0A3091"));
+    if (state.bonusOfferedToday) {
+      const bChore = state.chores.find(c => c.id === state.bonusOfferedToday.choreId);
+      if (bChore && bChore.status === "open") {
+        cards.push(statCardHTML(`${state.bonusOfferedToday.multiplier}× bonus today`, bChore.title, ic.zap, "#9C2B2B", true));
+      }
+    }
+  }
+  return `
+    <section style="padding:8px 24px 20px;max-width:1100px;margin:0 auto">
+      <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr))">
+        ${cards.join('')}
+      </div>
+    </section>`;
+}
+
+function statCardHTML(label, value, icon, accent, highlight = false) {
+  const fontSize = String(value).length > 14 ? 16 : 28;
+  return `
+    <div class="card slide-up ${highlight ? 'pulse-glow' : ''}" style="padding:16px;position:relative;overflow:hidden">
+      <div class="grain"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6">${escapeHtml(label)}</div>
+        <div style="color:${accent}">${icon}</div>
+      </div>
+      <div class="display-font" style="font-size:${fontSize}px;font-weight:800;line-height:1.1">${escapeHtml(value)}</div>
+    </div>`;
+}
+
+function buildTabs() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const pendingApprovals = state.completions.filter(c => c.status === "pending").length;
+  const pendingRedemptions = state.redemptions.filter(r => r.status === "pending").length;
+  const tabs = [
+    { id: "today", label: "Today",     icon: ic.calendar },
+    { id: "store", label: "Store",     icon: ic.store },
+    { id: "house", label: "House",     icon: ic.home },
+    { id: "crew",  label: "Crew",      icon: ic.trophy },
+    isParent && { id: "review", label: `Review${(pendingApprovals + pendingRedemptions) ? ` (${pendingApprovals + pendingRedemptions})` : ''}`, icon: ic.alert },
+    isParent && { id: "ledger", label: "Ledger",    icon: ic.trending },
+  ].filter(Boolean);
+  return `
+    <nav style="padding:0 20px;max-width:1100px;margin:0 auto">
+      <div class="scroll-x" style="display:flex;gap:6px;padding-bottom:8px">
+        ${tabs.map(t => `<button class="tab-btn ${view.tab === t.id ? 'tab-btn-active' : ''}" data-action="set-tab" data-tab="${t.id}" style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-flex">${t.icon}</span>${escapeHtml(t.label)}</button>`).join('')}
+      </div>
+    </nav>`;
+}
+
+function buildTodayView() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const filteredRoom = view.roomFilter ? state.rooms.find(r => r.id === view.roomFilter) : null;
+
+  let chores = state.chores.filter(c => c.status === "open" && (c.nextDue <= todayISO() || c.recurrence === "once"));
+  if (filteredRoom) chores = chores.filter(c => c.roomId === filteredRoom.id);
+  const visibleChores = isParent ? chores : chores.filter(c => c.assignee === user.id || !c.assignee);
+
+  const filterPill = filteredRoom ? `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button data-action="clear-room-filter" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:#0E2A47;color:#F7F4ED;border:none;border-radius:100px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">
+        ${filteredRoom.emoji} ${escapeHtml(filteredRoom.name)} <span style="opacity:0.7;font-size:11px">${ic.x}</span>
+      </button>
+      <span style="font-size:12px;opacity:0.6">Filtered by room</span>
+    </div>` : '';
+
+  if (!visibleChores.length) {
+    return `
+      ${filterPill}
+      <div class="card slide-up" style="padding:40px;text-align:center">
+        <div style="font-size:48px">${filteredRoom ? filteredRoom.emoji : '🎉'}</div>
+        <div class="display-font" style="font-size:24px;font-weight:800;margin-top:8px">${filteredRoom ? `Nothing open in ${escapeHtml(filteredRoom.name)}` : (isParent ? "All clear today" : "You're all done!")}</div>
+        <div style="opacity:0.7;margin-top:6px">${filteredRoom ? "Tap the filter above to clear, or add a chore." : (isParent ? "Nothing on the docket. Nice." : "Come back tomorrow for fresh chores.")}</div>
+        ${!isParent && !filteredRoom ? `<button class="btn btn-gold" style="margin-top:16px" data-action="set-tab" data-tab="store">${ic.trophy} Spend points in the store</button>` : ''}
+      </div>`;
+  }
+
+  return `
+    ${filterPill}
+    ${!isParent && !filteredRoom ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-gold" data-action="set-tab" data-tab="store">${ic.trophy} Store · ${user.pointsAllTime} pts</button>
+    </div>` : ''}
+    <div style="display:grid;gap:10px">
+      ${visibleChores.map((c, i) => choreRowHTML(c, i, isParent)).join('')}
+    </div>`;
+}
+
+function choreRowHTML(chore, idx, isParent) {
+  const room = state.rooms.find(r => r.id === chore.roomId);
+  const assignee = state.members.find(m => m.id === chore.assignee);
+  const overdue = chore.nextDue < todayISO();
+  const isBonus = state.bonusOfferedToday?.choreId === chore.id && state.bonusOfferedToday?.date === todayISO();
+  const mult = isBonus ? state.bonusOfferedToday.multiplier : 1;
+  return `
+    <div class="card slide-up" style="padding:14px;display:flex;align-items:center;gap:12px;animation-delay:${idx * 0.04}s;border-left:4px solid ${isBonus ? '#D4A93C' : 'transparent'}">
+      <button data-action="complete-chore" data-chore-id="${chore.id}" style="width:44px;height:44px;border-radius:100px;border:2px solid #0E2A47;background:white;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#0E2A47">
+        <span style="opacity:0.3">${ic.circle}</span>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div style="font-weight:700;font-size:15px">${escapeHtml(chore.title)}</div>
+          ${isBonus ? `<span class="badge badge-gold mono-font">${mult}× BONUS</span>` : ''}
+          ${chore.photoRequired ? `<span style="font-size:11px;opacity:0.6;display:inline-flex;align-items:center;gap:3px">${ic.camera} photo</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;opacity:0.7;margin-top:2px;flex-wrap:wrap">
+          <span>${room?.emoji || ''} ${escapeHtml(room?.name || '')}</span>
+          ${assignee ? `<span>· ${escapeHtml(assignee.name)}</span>` : ''}
+          <span>· ${chore.recurrence}</span>
+          <span style="color:${overdue ? '#9C2B2B' : 'inherit'};font-weight:${overdue ? 600 : 400}">· ${escapeHtml(fmtRelative(chore.nextDue))}</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;display:flex;align-items:center;gap:8px">
+        <div>
+          <div class="display-font" style="font-weight:800;font-size:18px">${chore.points * mult} <span style="font-size:11px;opacity:0.6">pts</span></div>
+          ${chore.dollars > 0 ? `<div class="mono-font" style="font-size:12px;color:#0A4F37;font-weight:600">${fmtDollars(chore.dollars * mult)}</div>` : ''}
+        </div>
+        ${isParent ? `<button data-action="edit-chore" data-chore-id="${chore.id}" style="background:transparent;border:none;cursor:pointer;opacity:0.5;padding:4px;color:inherit">${ic.edit}</button>` : ''}
+      </div>
+    </div>`;
+}
+
+/* === STORE VIEW === */
+function buildStoreView() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const filter = view.rewardCategoryFilter;
+  const filtered = filter === "all" ? state.rewards : state.rewards.filter(r => r.category === filter);
+
+  const categories = [
+    { id: "all", label: "All" },
+    { id: "giftcard", label: "🎁 Gift cards" },
+    { id: "cash", label: "💵 Cash" },
+    { id: "experience", label: "🎟️ Experiences" },
+    { id: "privilege", label: "✨ Privileges" },
+  ];
+
+  return `
+    <div style="display:grid;gap:16px">
+      <div class="card slide-up" style="padding:20px;position:relative;overflow:hidden;background:linear-gradient(135deg, #0E2A47, #1a3a5c);color:#F7F4ED">
+        <div class="grain"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="mono-font" style="font-size:10px;letter-spacing:0.18em;opacity:0.7;text-transform:uppercase">The Crew Store</div>
+            <div class="display-font" style="font-size:28px;font-weight:800;margin-top:4px">Trade points for the good stuff</div>
+          </div>
+          ${!isParent ? `<div style="text-align:right">
+            <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;opacity:0.7;text-transform:uppercase">Your points</div>
+            <div class="display-font shimmer-text" style="font-size:36px;font-weight:900;line-height:1">${user.pointsAllTime}</div>
+          </div>` : `<button class="btn btn-gold" data-action="add-reward">${ic.plus} Add item</button>`}
+        </div>
+      </div>
+
+      <div class="scroll-x" style="display:flex;gap:6px">
+        ${categories.map(c => `<button class="tab-btn ${filter === c.id ? 'tab-btn-active' : ''}" data-action="set-reward-filter" data-filter="${c.id}">${escapeHtml(c.label)}</button>`).join('')}
+      </div>
+
+      ${filtered.length === 0 ? `
+        <div class="card" style="padding:40px;text-align:center;opacity:0.7">
+          <div style="font-size:36px">🛒</div>
+          <div style="margin-top:8px">No items in this category yet${isParent ? '. Add one!' : '. Check back soon.'}</div>
+        </div>
+      ` : `
+        <div style="display:grid;gap:14px;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr))">
+          ${filtered.map((r, i) => rewardTileHTML(r, user, isParent, i)).join('')}
+        </div>
+      `}
+
+      ${!isParent ? `
+        <div style="padding:14px;background:white;border-radius:12px;font-size:12px;opacity:0.75">
+          💡 Once you redeem something, a parent fulfills it. Gift card codes get emailed to you.
+        </div>
+      ` : ''}
+    </div>`;
+}
+
+function rewardTileHTML(r, user, isParent, idx) {
+  const can = !isParent && user.pointsAllTime >= r.cost && r.stock !== 0;
+  const out = r.stock === 0;
+  return `
+    <button class="reward-tile slide-up" data-action="${isParent ? 'edit-reward' : 'redeem-reward'}" data-reward-id="${r.id}" ${(!can && !isParent) ? 'disabled' : ''} style="animation-delay:${idx * 0.04}s">
+      <div class="reward-tile-img">
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt=""/>` : `<span>${r.emoji || '🎁'}</span>`}
+      </div>
+      <div style="padding:14px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+          ${r.category === "giftcard" ? '<span class="badge badge-gold">GIFT CARD</span>' : ''}
+          ${r.category === "cash" ? '<span class="badge badge-green">CASH</span>' : ''}
+          ${r.category === "experience" ? '<span class="badge badge-yellow">EXPERIENCE</span>' : ''}
+          ${out ? '<span class="badge badge-red">SOLD OUT</span>' : (r.stock > 0 && r.stock <= 3) ? `<span class="badge badge-yellow">${r.stock} left</span>` : ''}
+        </div>
+        <div style="font-weight:700;font-size:15px;color:#0E2A47">${escapeHtml(r.title)}</div>
+        ${r.description ? `<div style="font-size:12px;color:#0E2A47;opacity:0.65;margin-top:4px;line-height:1.4">${escapeHtml(r.description)}</div>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+          <div style="display:inline-flex;align-items:center;gap:4px;color:#D4A93C;font-weight:800">
+            ${ic.star}<span class="display-font" style="font-size:18px">${r.cost}</span>
+          </div>
+          ${isParent ? `<span style="font-size:11px;opacity:0.5;color:#0E2A47">${ic.edit}</span>` : (can ? `<span style="font-size:11px;color:#0A4F37;font-weight:700">REDEEM ›</span>` : `<span style="font-size:11px;color:#9C2B2B">Need ${r.cost - user.pointsAllTime} more</span>`)}
+        </div>
+      </div>
+    </button>`;
+}
+
+/* === HOUSE VIEW === */
+function buildHouseView() {
+  return `
+    <div class="card slide-up" style="padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div class="display-font" style="font-size:22px;font-weight:800">Cleanliness map</div>
+          <div style="font-size:13px;opacity:0.7">Tap a room to see only its open chores.</div>
+        </div>
+        <span style="opacity:0.4">${ic.home}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:10px">
+        ${state.rooms.map(r => {
+          const cls = r.health > 0.65 ? "room-clean" : r.health > 0.4 ? "room-okay" : "room-needs";
+          const open = state.chores.filter(c => c.roomId === r.id && c.status === "open").length;
+          return `
+            <button class="room-tile ${cls}" data-action="filter-by-room" data-room-id="${r.id}" style="font-family:inherit;cursor:pointer">
+              <div style="font-size:28px">${r.emoji}</div>
+              <div style="margin-top:4px">${escapeHtml(r.name)}</div>
+              <div class="mono-font" style="font-size:9px;opacity:0.7;margin-top:2px">${Math.round(r.health*100)}% · ${open} open</div>
+            </button>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#F7F4ED;border-radius:10px;font-size:12px;opacity:0.75">
+        💡 Room health refills as chores are approved and degrades over time as they go undone.
+      </div>
+    </div>`;
+}
+
+/* === CREW VIEW === */
+function buildCrewView() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const leaderboard = [...state.members].filter(m => m.role === "kid").sort((a,b) => b.pointsAllTime - a.pointsAllTime);
+  const champion = leaderboard[0];
+  const maxPoints = champion ? Math.max(1, champion.pointsAllTime) : 1;
+
+  return `
+    <div style="display:grid;gap:16px">
+      ${champion ? `
+        <div class="card slide-up" style="padding:24px;position:relative;overflow:hidden;background:linear-gradient(135deg, #0E2A47, #1a3a5c);color:#F7F4ED">
+          <div class="grain"></div>
+          <div class="mono-font" style="font-size:10px;letter-spacing:0.18em;opacity:0.7;text-transform:uppercase">Current household champion</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:8px">
+            ${avatarHTML(champion, 64)}
+            <div style="flex:1">
+              <div class="display-font shimmer-text" style="font-size:32px;font-weight:900;line-height:1">${escapeHtml(champion.name)}</div>
+              <div style="font-size:14px;opacity:0.85;margin-top:4px">${champion.pointsAllTime} pts · ${champion.streak}🔥 day streak</div>
+            </div>
+            <span style="color:#D4A93C;opacity:0.8;flex-shrink:0">${ic.trophy}</span>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="card slide-up" style="padding:20px">
+        <div class="display-font" style="font-size:20px;font-weight:800;margin-bottom:12px">Leaderboard</div>
+        <div style="display:grid;gap:10px">
+          ${leaderboard.map((m, i) => `
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="display-font" style="font-size:22px;font-weight:800;width:28px;opacity:0.4">${i+1}</div>
+              ${avatarHTML(m, 36)}
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px"><div style="font-weight:700">${escapeHtml(m.name)}</div></div>
+                <div class="progress-track" style="margin-top:4px">
+                  <div class="progress-fill" style="width:${Math.min(100, (m.pointsAllTime/maxPoints)*100)}%"></div>
+                </div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div class="display-font" style="font-size:18px;font-weight:800">${m.pointsAllTime}</div>
+                <div class="mono-font" style="font-size:10px;opacity:0.6">${fmtDollars(m.allowance)} · ${m.streak}🔥</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      ${isParent ? `<button class="btn btn-gold" data-action="open-payout" style="width:100%;justify-content:center;padding:16px">${ic.dollar} Send to Greenlight / pay out</button>` : ''}
+    </div>`;
+}
+
+/* === REVIEW VIEW === */
+function buildReviewView() {
+  const pending = state.completions.filter(c => c.status === "pending");
+  const pendingRedemptions = state.redemptions.filter(r => r.status === "pending");
+
+  if (!pending.length && !pendingRedemptions.length) {
+    return `
+      <div class="card slide-up" style="padding:40px;text-align:center">
+        <div style="font-size:48px">✨</div>
+        <div class="display-font" style="font-size:22px;font-weight:800;margin-top:8px">Nothing to review</div>
+        <div style="opacity:0.7;margin-top:4px">Submitted chores and redemptions will appear here.</div>
+      </div>`;
+  }
+
+  return `
+    <div style="display:grid;gap:18px">
+      ${pending.length ? `
+        <div>
+          <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;font-weight:600;margin-bottom:8px">Chore approvals · ${pending.length}</div>
+          <div style="display:grid;gap:10px">
+            ${pending.map((co, i) => {
+              const chore = state.chores.find(c => c.id === co.choreId);
+              const member = state.members.find(m => m.id === co.by);
+              return `
+                <div class="card slide-up" style="padding:16px;display:flex;align-items:center;gap:12px;animation-delay:${i*0.04}s">
+                  ${avatarHTML(member, 44)}
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:700">${escapeHtml(chore?.title || '?')}</div>
+                    <div style="font-size:12px;opacity:0.7">${escapeHtml(member?.name || '')} · ${new Date(co.when).toLocaleString()}${co.photoUrl ? ' · 📸 photo' : ''}</div>
+                  </div>
+                  ${co.photoUrl ? `<img src="${escapeHtml(co.photoUrl)}" alt="proof" style="width:44px;height:44px;border-radius:8px;object-fit:cover;cursor:pointer" data-action="view-photo" data-photo="${escapeHtml(co.photoUrl)}"/>` : ''}
+                  <div style="text-align:right">
+                    <div class="display-font" style="font-weight:800">+${co.points}</div>
+                    ${co.dollars > 0 ? `<div class="mono-font" style="font-size:11px;color:#0A4F37">${fmtDollars(co.dollars)}</div>` : ''}
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button data-action="reject-completion" data-id="${co.id}" style="width:36px;height:36px;border-radius:8px;border:1px solid #9C2B2B;background:white;color:#9C2B2B;cursor:pointer;display:flex;align-items:center;justify-content:center">${ic.x}</button>
+                    <button data-action="approve-completion" data-id="${co.id}" style="width:36px;height:36px;border-radius:8px;border:none;background:#0A4F37;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center">${ic.check}</button>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${pendingRedemptions.length ? `
+        <div>
+          <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;font-weight:600;margin-bottom:8px">Store redemptions · ${pendingRedemptions.length}</div>
+          <div style="display:grid;gap:10px">
+            ${pendingRedemptions.map((red, i) => {
+              const reward = state.rewards.find(r => r.id === red.rewardId);
+              const member = state.members.find(m => m.id === red.by);
+              return `
+                <div class="card slide-up" style="padding:16px;display:flex;align-items:center;gap:12px;animation-delay:${i*0.04}s">
+                  ${avatarHTML(member, 44)}
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:700">${escapeHtml(reward?.title || '?')} ${reward?.emoji || ''}</div>
+                    <div style="font-size:12px;opacity:0.7">${escapeHtml(member?.name || '')} · redeemed ${new Date(red.when).toLocaleString()}</div>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button data-action="deny-redemption" data-id="${red.id}" style="width:36px;height:36px;border-radius:8px;border:1px solid #9C2B2B;background:white;color:#9C2B2B;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Deny &amp; refund points">${ic.x}</button>
+                    <button data-action="fulfill-redemption" data-id="${red.id}" style="width:36px;height:36px;border-radius:8px;border:none;background:#0A4F37;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Mark fulfilled">${ic.check}</button>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>`;
+}
+
+/* === LEDGER VIEW === */
+function buildLedgerView() {
+  const recent = state.completions.slice(0, 30);
+  return `
+    <div style="display:grid;gap:16px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" data-action="export-csv">${ic.download} Export CSV</button>
+        <button class="btn btn-gold" data-action="open-payout">${ic.dollar} Payout / Greenlight</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:14px 18px;border-bottom:1px solid rgba(14,42,71,0.08);display:flex;align-items:center;gap:8px">
+          ${ic.trending}
+          <div class="display-font" style="font-size:18px;font-weight:800">Completion ledger</div>
+        </div>
+        ${recent.length === 0 ? `
+          <div style="padding:24px;opacity:0.6;font-size:14px">No completions yet — once chores get done, they'll show up here.</div>
+        ` : `
+          <div>${recent.map(co => {
+            const chore = state.chores.find(c => c.id === co.choreId);
+            const member = state.members.find(m => m.id === co.by);
+            return `
+              <div style="padding:10px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(14,42,71,0.04);font-size:13px">
+                <div style="flex:1">
+                  <span style="font-weight:600">${escapeHtml(member?.name || '?')}</span>
+                  <span style="opacity:0.7">completed</span>
+                  <span>${escapeHtml(chore?.title || '?')}</span>
+                  ${co.bonus ? '<span style="margin-left:6px;font-size:10px;color:#D4A93C;font-weight:700">BONUS</span>' : ''}
+                </div>
+                <div class="mono-font" style="font-size:11px;opacity:0.5">${new Date(co.when).toLocaleDateString()}</div>
+                <div style="min-width:60px;text-align:right">
+                  <div style="font-weight:700">+${co.points}p</div>
+                  ${co.dollars > 0 ? `<div class="mono-font" style="font-size:10px;color:#0A4F37">${fmtDollars(co.dollars)}</div>` : ''}
+                </div>
+                <span class="badge ${co.status === 'approved' ? 'badge-green' : co.status === 'pending' ? 'badge-yellow' : 'badge-red'}">${co.status}</span>
+              </div>`;
+          }).join('')}</div>
+        `}
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+
+function buildModal() {
+  if (view.pendingPhotoChoreId) return photoModalHTML();
+  if (view.showAdd) return wizardModalHTML();
+  if (view.editingChoreId) return choreFormModalHTML();
+  if (view.showRewardsShop) return rewardsShopModalHTML();
+  if (view.showAddReward || view.editingRewardId) return rewardFormModalHTML();
+  if (view.showPayout) return payoutModalHTML();
+  if (view.showSettings) return settingsModalHTML();
+  if (view.showProfile) return profileModalHTML();
+  return '';
+}
+
+function modalShell(content) {
+  return `<div class="modal-backdrop">
+    <div class="modal-body">
+      <button class="modal-close" data-action="close-modal">${ic.x}</button>
+      ${content}
+    </div>
+  </div>`;
+}
+
+function photoModalHTML() {
+  const chore = state.chores.find(c => c.id === view.pendingPhotoChoreId);
+  if (!chore) return '';
+  return modalShell(`
+    <div style="text-align:center">
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:6px">Snap proof</div>
+      <div style="opacity:0.7;font-size:14px;margin-bottom:16px">${escapeHtml(chore.title)}</div>
+      <label class="upload-area" style="display:block">
+        <span style="color:#D4A93C">${ic.camera}</span>
+        <div style="font-weight:600;margin-top:8px">Take or upload a photo</div>
+        <div style="font-size:12px;opacity:0.6;margin-top:4px">A parent will approve before points pay out.</div>
+        <input type="file" accept="image/*" capture="environment" style="display:none" data-action="upload-chore-photo" data-chore-id="${chore.id}"/>
+      </label>
+    </div>
+  `);
+}
+
+function wizardModalHTML() {
+  // initialize draft on first open
+  if (!view.wizardDraft) {
+    view.wizardDraft = {
+      title: "",
+      roomId: state.rooms[0]?.id || null,
+      assignee: view.wizardLastAssignee || null,
+      points: 1,
+      dollars: 0,
+      recurrence: view.wizardLastRecurrence,
+      photoRequired: false,
+    };
+    view.wizardStep = 0;
+  }
+  const d = view.wizardDraft;
+  const step = view.wizardStep;
+  const kids = state.members.filter(m => m.role === "kid");
+  const totalSteps = 5;
+
+  // Progress dots
+  const dots = Array.from({length: totalSteps}).map((_, i) => `
+    <div style="flex:1;height:4px;border-radius:2px;background:${i <= step ? '#D4A93C' : 'rgba(14,42,71,0.1)'};transition:background 0.3s"></div>
+  `).join('');
+
+  let body = "";
+
+  // STEP 0: Title — with library suggestions
+  if (step === 0) {
+    // Group library by room
+    const byRoom = {};
+    CHORE_LIBRARY.forEach(c => {
+      if (!byRoom[c.room]) byRoom[c.room] = [];
+      byRoom[c.room].push(c);
+    });
+    body = `
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">What's the chore?</div>
+      <div style="opacity:0.65;font-size:13px;margin-bottom:14px">Tap a suggestion below, or type your own.</div>
+
+      <input class="input-base" id="wizard-title" placeholder="Type a chore name…" value="${escapeHtml(d.title)}" data-action="wizard-title-input" autocomplete="off" style="margin-bottom:14px;font-size:16px"/>
+
+      <div style="margin-bottom:8px">
+        <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;font-weight:600">Common chores · tap to use</div>
+      </div>
+      <div style="max-height:340px;overflow-y:auto;display:grid;gap:14px;padding-bottom:8px">
+        ${Object.entries(byRoom).map(([roomName, items]) => {
+          const room = state.rooms.find(r => r.name === roomName);
+          return `
+            <div>
+              <div style="font-size:11px;opacity:0.6;margin-bottom:6px;font-weight:600">${room?.emoji || ''} ${escapeHtml(roomName)}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                ${items.map(c => `
+                  <button data-action="wizard-pick-library" data-title="${escapeHtml(c.title)}" data-room="${escapeHtml(c.room)}" data-points="${c.points}" data-dollars="${c.dollars}" data-recurrence="${c.recurrence}" data-photo="${c.photo}" style="background:white;border:1px solid rgba(14,42,71,0.15);border-radius:100px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;color:#0E2A47;transition:all 0.15s">
+                    ${escapeHtml(c.title)}
+                    <span style="opacity:0.5;font-size:11px;margin-left:4px">+${c.points}p${c.dollars ? ` · $${c.dollars.toFixed(2)}` : ''}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // STEP 1: Who
+  if (step === 1) {
+    body = `
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">Who's doing it?</div>
+      <div style="opacity:0.65;font-size:13px;margin-bottom:18px">${escapeHtml(d.title)}</div>
+      <div style="display:grid;gap:8px">
+        ${kids.map(k => `
+          <button data-action="wizard-set-assignee" data-id="${k.id}" style="display:flex;align-items:center;gap:12px;padding:12px;background:${d.assignee===k.id ? '#0E2A47' : 'white'};color:${d.assignee===k.id ? '#F7F4ED' : '#0E2A47'};border:2px solid ${d.assignee===k.id ? '#D4A93C' : 'rgba(14,42,71,0.1)'};border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;width:100%">
+            ${avatarHTML(k, 44)}
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:15px">${escapeHtml(k.name)}</div>
+              <div style="font-size:11px;opacity:0.65">${k.pointsAllTime} pts · ${fmtDollars(k.allowance)} owed</div>
+            </div>
+            ${d.assignee===k.id ? `<span style="color:#D4A93C">${ic.check}</span>` : ''}
+          </button>
+        `).join('')}
+        <button data-action="wizard-set-assignee" data-id="" style="display:flex;align-items:center;gap:12px;padding:12px;background:${d.assignee===null ? '#0E2A47' : 'white'};color:${d.assignee===null ? '#F7F4ED' : '#0E2A47'};border:2px solid ${d.assignee===null ? '#D4A93C' : 'rgba(14,42,71,0.1)'};border-radius:12px;cursor:pointer;font-family:inherit;text-align:left">
+          <div style="width:44px;height:44px;border-radius:11px;background:rgba(14,42,71,0.05);display:flex;align-items:center;justify-content:center;font-size:20px">🌟</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:15px">Anyone</div>
+            <div style="font-size:11px;opacity:0.65">First kid to claim it gets the points</div>
+          </div>
+        </button>
+      </div>
+    `;
+  }
+
+  // STEP 2: When (recurrence) + Room
+  if (step === 2) {
+    const opts = [
+      { id: "daily",   label: "Daily",    sub: "Every day", emoji: "📅" },
+      { id: "weekly",  label: "Weekly",   sub: "Once a week", emoji: "🗓️" },
+      { id: "monthly", label: "Monthly",  sub: "Once a month", emoji: "📆" },
+      { id: "once",    label: "One time", sub: "Just this once", emoji: "✨" },
+    ];
+    body = `
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">How often?</div>
+      <div style="opacity:0.65;font-size:13px;margin-bottom:18px">${escapeHtml(d.title)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+        ${opts.map(o => `
+          <button data-action="wizard-set-recurrence" data-id="${o.id}" style="padding:14px;background:${d.recurrence===o.id ? '#0E2A47' : 'white'};color:${d.recurrence===o.id ? '#F7F4ED' : '#0E2A47'};border:2px solid ${d.recurrence===o.id ? '#D4A93C' : 'rgba(14,42,71,0.1)'};border-radius:12px;cursor:pointer;font-family:inherit;text-align:left">
+            <div style="font-size:24px;margin-bottom:4px">${o.emoji}</div>
+            <div style="font-weight:700;font-size:14px">${o.label}</div>
+            <div style="font-size:11px;opacity:0.65">${o.sub}</div>
+          </button>
+        `).join('')}
+      </div>
+
+      <label class="field-label">Which room?</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${state.rooms.map(r => `
+          <button data-action="wizard-set-room" data-id="${r.id}" style="background:${d.roomId===r.id ? '#0E2A47' : 'white'};color:${d.roomId===r.id ? '#F7F4ED' : '#0E2A47'};border:1px solid ${d.roomId===r.id ? '#D4A93C' : 'rgba(14,42,71,0.15)'};border-radius:100px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600">
+            ${r.emoji} ${escapeHtml(r.name)}
+          </button>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // STEP 3: Points & Dollars
+  if (step === 3) {
+    const pointPresets = [1, 2, 3, 5, 10];
+    const dollarPresets = [0, 0.50, 1, 2, 5];
+    body = `
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">What's it worth?</div>
+      <div style="opacity:0.65;font-size:13px;margin-bottom:18px">${escapeHtml(d.title)}</div>
+
+      <div style="margin-bottom:18px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <label class="field-label" style="margin:0">Points</label>
+          <div class="display-font" style="font-size:32px;font-weight:800;color:#D4A93C">${d.points}</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          ${pointPresets.map(p => `
+            <button data-action="wizard-set-points" data-value="${p}" style="flex:1;padding:10px;background:${d.points===p ? '#D4A93C' : 'white'};color:${d.points===p ? '#0E2A47' : '#0E2A47'};border:1px solid ${d.points===p ? '#D4A93C' : 'rgba(14,42,71,0.15)'};border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px">${p}</button>
+          `).join('')}
+        </div>
+        <input class="input-base" type="number" min="0" max="100" value="${d.points}" data-action="wizard-points-input" placeholder="Custom points" style="font-size:14px"/>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <label class="field-label" style="margin:0">Cash payout (optional)</label>
+          <div class="display-font" style="font-size:32px;font-weight:800;color:#0A4F37">${fmtDollars(d.dollars)}</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          ${dollarPresets.map(v => `
+            <button data-action="wizard-set-dollars" data-value="${v}" style="flex:1;padding:10px;background:${d.dollars===v ? '#0A4F37' : 'white'};color:${d.dollars===v ? '#F7F4ED' : '#0E2A47'};border:1px solid ${d.dollars===v ? '#0A4F37' : 'rgba(14,42,71,0.15)'};border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px">${v === 0 ? '$0' : '$' + v.toFixed(v < 1 ? 2 : 0)}</button>
+          `).join('')}
+        </div>
+        <input class="input-base" type="number" min="0" step="0.25" value="${d.dollars}" data-action="wizard-dollars-input" placeholder="Custom amount" style="font-size:14px"/>
+      </div>
+
+      <button data-action="wizard-toggle-photo" style="display:flex;align-items:center;gap:10px;padding:12px;background:${d.photoRequired ? 'rgba(212,169,60,0.1)' : 'white'};border:2px solid ${d.photoRequired ? '#D4A93C' : 'rgba(14,42,71,0.1)'};border-radius:12px;cursor:pointer;font-family:inherit;width:100%;text-align:left;color:#0E2A47">
+        <div style="width:24px;height:24px;border-radius:6px;background:${d.photoRequired ? '#D4A93C' : 'rgba(14,42,71,0.05)'};color:${d.photoRequired ? '#0E2A47' : '#0E2A47'};display:flex;align-items:center;justify-content:center">${d.photoRequired ? ic.check : ic.camera}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:13px">Require photo proof</div>
+          <div style="font-size:11px;opacity:0.65">Kid attaches a photo; you approve before points pay out</div>
+        </div>
+      </button>
+    `;
+  }
+
+  // STEP 4: Confirm
+  if (step === 4) {
+    const room = state.rooms.find(r => r.id === d.roomId);
+    const assignee = state.members.find(m => m.id === d.assignee);
+    body = `
+      <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">Look right?</div>
+      <div style="opacity:0.65;font-size:13px;margin-bottom:18px">Add this chore to the family list.</div>
+      <div style="background:white;border-radius:14px;padding:18px;border:2px solid #D4A93C">
+        <div style="font-weight:800;font-size:18px;margin-bottom:8px">${escapeHtml(d.title)}</div>
+        <div style="display:grid;gap:10px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">Who</span><span style="font-weight:600">${assignee ? escapeHtml(assignee.name) : '🌟 Anyone'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">Room</span><span style="font-weight:600">${room?.emoji || ''} ${escapeHtml(room?.name || '')}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">How often</span><span style="font-weight:600">${d.recurrence}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">Points</span><span style="font-weight:700;color:#D4A93C">${d.points}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">Cash</span><span style="font-weight:700;color:#0A4F37">${fmtDollars(d.dollars)}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="opacity:0.6">Photo proof</span><span style="font-weight:600">${d.photoRequired ? 'Required' : 'No'}</span></div>
+        </div>
+      </div>
+      ${view.wizardJustAddedCount > 0 ? `
+        <div style="margin-top:14px;padding:10px 14px;background:rgba(10,79,55,0.08);border-radius:10px;font-size:12px;color:#0A4F37;display:flex;align-items:center;gap:8px">
+          <span>${ic.check}</span> Already added ${view.wizardJustAddedCount} chore${view.wizardJustAddedCount > 1 ? 's' : ''} this session
+        </div>
+      ` : ''}
+    `;
+  }
+
+  // Navigation
+  // For step 0, check the live input value too in case input event hasn't synced yet
+  const liveTitle = step === 0 ? (document.getElementById('wizard-title')?.value || d.title) : d.title;
+  const canAdvance = (step === 0 ? liveTitle.trim().length > 0 :
+                      step === 1 ? d.assignee !== undefined :
+                      step === 2 ? d.recurrence && d.roomId :
+                      step === 3 ? d.points >= 0 : true);
+
+  return modalShell(`
+    <div style="display:flex;gap:4px;margin-bottom:18px">${dots}</div>
+    ${body}
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:space-between;align-items:center">
+      ${step > 0 ? `<button class="btn btn-ghost" data-action="wizard-back">← Back</button>` : `<button class="btn btn-ghost" data-action="wizard-cancel">Cancel</button>`}
+      ${step < totalSteps - 1
+        ? `<button class="btn btn-primary" data-action="wizard-next" ${!canAdvance ? 'disabled' : ''}>Next →</button>`
+        : `<div style="display:flex;gap:6px"><button class="btn btn-ghost" data-action="wizard-add-and-continue">Add &amp; new</button><button class="btn btn-gold" data-action="wizard-add-and-finish">${ic.check} Add chore</button></div>`
+      }
+    </div>
+  `);
+}
+
+
+function choreFormModalHTML() {
+  const editing = view.editingChoreId ? state.chores.find(c => c.id === view.editingChoreId) : null;
+  const f = editing || { title: "", roomId: state.rooms[0]?.id, assignee: null, points: 1, dollars: 0, recurrence: "weekly", photoRequired: false };
+  const kids = state.members.filter(m => m.role === "kid");
+
+  return modalShell(`
+    <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">${editing ? 'Edit chore' : 'New chore'}</div>
+    <div style="opacity:0.6;font-size:13px;margin-bottom:18px">The whole crew sees what's set here.</div>
+    <form data-action="save-chore" data-chore-id="${editing?.id || ''}" style="display:grid;gap:12px">
+      <label><span class="field-label">Title</span>
+        <input class="input-base" name="title" value="${escapeHtml(f.title)}" placeholder="e.g. Empty dishwasher" required/>
+      </label>
+      <label><span class="field-label">Room</span>
+        <select class="input-base" name="roomId">
+          ${state.rooms.map(r => `<option value="${r.id}" ${r.id===f.roomId?'selected':''}>${r.emoji} ${escapeHtml(r.name)}</option>`).join('')}
+        </select>
+      </label>
+      <label><span class="field-label">Assigned to</span>
+        <select class="input-base" name="assignee">
+          <option value="">— Anyone —</option>
+          ${kids.map(k => `<option value="${k.id}" ${k.id===f.assignee?'selected':''}>${escapeHtml(k.name)}</option>`).join('')}
+        </select>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label><span class="field-label">Points</span>
+          <input class="input-base" name="points" type="number" min="0" value="${f.points}"/>
+        </label>
+        <label><span class="field-label">Dollars (optional)</span>
+          <input class="input-base" name="dollars" type="number" step="0.25" min="0" value="${f.dollars}"/>
+        </label>
+      </div>
+      <label><span class="field-label">Repeats</span>
+        <select class="input-base" name="recurrence">
+          <option value="once" ${f.recurrence==='once'?'selected':''}>One time</option>
+          <option value="daily" ${f.recurrence==='daily'?'selected':''}>Daily</option>
+          <option value="weekly" ${f.recurrence==='weekly'?'selected':''}>Weekly</option>
+          <option value="monthly" ${f.recurrence==='monthly'?'selected':''}>Monthly</option>
+        </select>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px;background:white;border-radius:8px;border:1px solid rgba(14,42,71,0.15);cursor:pointer">
+        <input type="checkbox" name="photoRequired" ${f.photoRequired?'checked':''}/>
+        ${ic.camera}
+        <div>
+          <div style="font-weight:600;font-size:13px">Photo verification required</div>
+          <div style="font-size:11px;opacity:0.6">Kid must attach a photo; you approve before points pay out.</div>
+        </div>
+      </label>
+      <div style="display:flex;gap:8px;margin-top:8px;justify-content:space-between">
+        ${editing ? (view.confirmingDeleteChoreId === editing.id
+          ? `<button type="button" class="btn" data-action="delete-chore" data-chore-id="${editing.id}" style="background:#9C2B2B;color:white;border:none;font-weight:700">${ic.trash} Tap again to confirm</button>`
+          : `<button type="button" class="btn btn-ghost" data-action="delete-chore" data-chore-id="${editing.id}" style="color:#9C2B2B">${ic.trash} Delete</button>`
+        ) : '<div></div>'}
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-ghost" data-action="close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">${editing ? 'Save' : 'Add chore'}</button>
+        </div>
+      </div>
+    </form>
+  `);
+}
+
+function rewardFormModalHTML() {
+  const editing = view.editingRewardId ? state.rewards.find(r => r.id === view.editingRewardId) : null;
+  const f = editing || { title: "", description: "", cost: 20, category: "privilege", emoji: "🎁", imageUrl: null, stock: -1 };
+
+  return modalShell(`
+    <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">${editing ? 'Edit store item' : 'New store item'}</div>
+    <div style="opacity:0.6;font-size:13px;margin-bottom:18px">Add gift cards, cash bonuses, experiences, or privileges.</div>
+    <form data-action="save-reward" data-reward-id="${editing?.id || ''}" style="display:grid;gap:12px">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="reward-tile-img" style="width:100px;aspect-ratio:1;border-radius:10px;flex-shrink:0;overflow:hidden" id="reward-image-preview">
+          ${f.imageUrl ? `<img src="${escapeHtml(f.imageUrl)}"/>` : `<span style="font-size:36px">${f.emoji || '🎁'}</span>`}
+        </div>
+        <div style="flex:1">
+          <label class="upload-area" style="display:block;padding:14px;font-size:12px">
+            ${ic.upload}
+            <div style="font-weight:600;margin-top:4px">Upload image</div>
+            <input type="file" accept="image/*" style="display:none" data-action="upload-reward-image"/>
+          </label>
+          <label style="margin-top:6px;display:block">
+            <span class="field-label">…or emoji</span>
+            <input class="input-base" name="emoji" value="${escapeHtml(f.emoji || '🎁')}" maxlength="2"/>
+          </label>
+        </div>
+      </div>
+      <label><span class="field-label">Title</span>
+        <input class="input-base" name="title" value="${escapeHtml(f.title)}" placeholder="e.g. Amazon gift card $10" required/>
+      </label>
+      <label><span class="field-label">Description</span>
+        <textarea class="input-base" name="description" rows="2" placeholder="Short detail kids will see">${escapeHtml(f.description)}</textarea>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label><span class="field-label">Cost (points)</span>
+          <input class="input-base" name="cost" type="number" min="1" value="${f.cost}" required/>
+        </label>
+        <label><span class="field-label">Category</span>
+          <select class="input-base" name="category">
+            <option value="giftcard" ${f.category==='giftcard'?'selected':''}>Gift card</option>
+            <option value="cash" ${f.category==='cash'?'selected':''}>Cash</option>
+            <option value="experience" ${f.category==='experience'?'selected':''}>Experience</option>
+            <option value="privilege" ${f.category==='privilege'?'selected':''}>Privilege</option>
+          </select>
+        </label>
+      </div>
+      <label><span class="field-label">Stock (-1 = unlimited)</span>
+        <input class="input-base" name="stock" type="number" min="-1" value="${f.stock}"/>
+      </label>
+      <div style="display:flex;gap:8px;margin-top:8px;justify-content:space-between">
+        ${editing ? (view.confirmingDeleteRewardId === editing.id
+          ? `<button type="button" class="btn" data-action="delete-reward" data-reward-id="${editing.id}" style="background:#9C2B2B;color:white;border:none;font-weight:700">${ic.trash} Tap again to confirm</button>`
+          : `<button type="button" class="btn btn-ghost" data-action="delete-reward" data-reward-id="${editing.id}" style="color:#9C2B2B">${ic.trash} Delete</button>`
+        ) : '<div></div>'}
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-ghost" data-action="close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">${editing ? 'Save' : 'Add to store'}</button>
+        </div>
+      </div>
+    </form>
+  `);
+}
+
+function payoutModalHTML() {
+  const kids = state.members.filter(m => m.role === "kid");
+  return modalShell(`
+    <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">Pay the crew</div>
+    <div style="opacity:0.7;font-size:13px;margin-bottom:14px">Greenlight has no public consumer API, so this is a one-tap bridge: copy the amount, open Greenlight, send it as a one-time chore payout, then mark paid here.</div>
+    <div style="display:grid;gap:10px;margin-bottom:16px">
+      ${kids.map(m => `
+        <div style="padding:14px;background:white;border-radius:12px;border:1px solid rgba(14,42,71,0.1);display:flex;align-items:center;gap:12px">
+          ${avatarHTML(m, 44)}
+          <div style="flex:1">
+            <div style="font-weight:700">${escapeHtml(m.name)}</div>
+            <div class="mono-font" style="font-size:11px;opacity:0.6">Owed</div>
+          </div>
+          <div class="display-font" style="font-size:22px;font-weight:800;color:#0A4F37;margin-right:8px">${fmtDollars(m.allowance)}</div>
+          <button class="btn btn-gold" data-action="payout-kid" data-kid-id="${m.id}" ${m.allowance <= 0 ? 'disabled' : ''}>Copy &amp; mark sent</button>
+        </div>
+      `).join('')}
+    </div>
+    ${state.payouts.length ? `
+      <div>
+        <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;font-weight:600;margin-bottom:8px">Recent payouts</div>
+        <div style="display:grid;gap:4px">
+          ${state.payouts.slice(0,5).map(p => {
+            const m = kids.find(mm => mm.id === p.kidId);
+            return `<div style="display:flex;justify-content:space-between;font-size:12px;opacity:0.75">
+              <span>${escapeHtml(m?.name || '?')} · ${p.paidVia}</span>
+              <span>${fmtDollars(p.amount)} · ${new Date(p.when).toLocaleDateString()}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `);
+}
+
+function settingsModalHTML() {
+  const tab = view.settingsTab;
+  return modalShell(`
+    <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:14px">Manage</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid rgba(14,42,71,0.08);padding-bottom:8px;flex-wrap:wrap">
+      ${[
+        { id: "members", label: "Members" },
+        { id: "rooms", label: "Rooms" },
+        { id: "backup", label: "Backup" },
+        { id: "danger", label: "Danger" },
+      ].map(t => `<button class="tab-btn ${tab===t.id ? 'tab-btn-active' : ''}" data-action="set-settings-tab" data-tab="${t.id}">${escapeHtml(t.label)}</button>`).join('')}
+    </div>
+    ${tab === "members" ? settingsMembersHTML() : ''}
+    ${tab === "rooms" ? settingsRoomsHTML() : ''}
+    ${tab === "backup" ? settingsBackupHTML() : ''}
+    ${tab === "danger" ? settingsDangerHTML() : ''}
+  `);
+}
+
+function settingsBackupHTML() {
+  const stats = {
+    members: state.members.length,
+    chores: state.chores.length,
+    rewards: state.rewards.length,
+    completions: state.completions.length,
+    payouts: state.payouts.length,
+  };
+  return `
+    <div style="display:grid;gap:14px">
+      <div style="padding:14px;background:white;border-radius:12px;border:1px solid rgba(14,42,71,0.08)">
+        <div class="display-font" style="font-size:18px;font-weight:800;margin-bottom:6px">Your data</div>
+        <div style="font-size:13px;opacity:0.75;line-height:1.5">${stats.members} members · ${stats.chores} chores · ${stats.rewards} store items · ${stats.completions} completions · ${stats.payouts} payouts</div>
+      </div>
+
+      <button class="btn btn-gold" data-action="export-backup" style="justify-content:center;padding:14px">
+        ${ic.download} Download backup (.json)
+      </button>
+      <div style="font-size:12px;opacity:0.7;margin-top:-8px;line-height:1.5">Saves a single JSON file with everything: members, chores, store, history, profile photos. Keep this somewhere safe — email it to yourself, drop it in Drive, whatever.</div>
+
+      <div class="ornate-rule" style="margin:8px 0"></div>
+
+      <label class="upload-area" style="display:block;cursor:pointer">
+        ${ic.upload}
+        <div style="font-weight:600;margin-top:6px">Restore from backup</div>
+        <div style="font-size:11px;opacity:0.6;margin-top:2px">Replaces all current data with the backup file</div>
+        <input type="file" accept="application/json,.json" style="display:none" data-action="import-backup"/>
+      </label>
+      <div style="font-size:12px;opacity:0.7;margin-top:-8px;line-height:1.5">⚠️ This overwrites everything currently in the app. If you have data you want to keep, download a backup first.</div>
+    </div>`;
+}
+
+function settingsMembersHTML() {
+  return `
+    <div style="display:grid;gap:10px">
+      ${state.members.map(m => `
+        <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(14,42,71,0.08)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <button data-action="open-profile" data-user-id="${m.id}" style="background:transparent;border:none;cursor:pointer;padding:0">${avatarHTML(m, 40)}</button>
+            <input class="input-base" data-action="update-member" data-user-id="${m.id}" data-field="name" value="${escapeHtml(m.name)}" style="flex:1"/>
+            <button data-action="remove-member" data-user-id="${m.id}" style="background:transparent;border:none;cursor:pointer;color:#9C2B2B;padding:6px">${ic.trash}</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <select class="input-base" data-action="update-member" data-user-id="${m.id}" data-field="role">
+              <option value="parent" ${m.role==='parent'?'selected':''}>Parent</option>
+              <option value="kid" ${m.role==='kid'?'selected':''}>Kid</option>
+            </select>
+            <div style="display:flex;gap:4px">
+              ${PALETTE.map(c => `<button data-action="update-member-color" data-user-id="${m.id}" data-color="${c}" style="width:24px;height:24px;border-radius:4px;background:${c};border:${m.color===c?'2px solid #0E2A47':'1px solid rgba(0,0,0,0.1)'};cursor:pointer;flex:1"></button>`).join('')}
+            </div>
+          </div>
+          <button class="btn btn-ghost" data-action="reroll-avatar" data-user-id="${m.id}" style="margin-top:8px;font-size:12px">${ic.refresh} New pixel avatar</button>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost" data-action="add-member" style="justify-content:center">${ic.plus} Add member</button>
+    </div>`;
+}
+
+function settingsRoomsHTML() {
+  return `
+    <div style="display:grid;gap:10px">
+      ${state.rooms.map(r => `
+        <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(14,42,71,0.08);display:flex;align-items:center;gap:8px">
+          <input class="input-base" data-action="update-room" data-room-id="${r.id}" data-field="emoji" value="${escapeHtml(r.emoji)}" style="width:60px;text-align:center" maxlength="2"/>
+          <input class="input-base" data-action="update-room" data-room-id="${r.id}" data-field="name" value="${escapeHtml(r.name)}" style="flex:1"/>
+          <button data-action="remove-room" data-room-id="${r.id}" style="background:transparent;border:none;cursor:pointer;color:#9C2B2B;padding:6px">${ic.trash}</button>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost" data-action="add-room" style="justify-content:center">${ic.plus} Add room</button>
+    </div>`;
+}
+
+function settingsDangerHTML() {
+  const choreCount = state.chores.length;
+  const completionCount = state.completions.length;
+  return `
+    <div style="display:grid;gap:12px">
+      <button class="btn" data-action="clear-chores" style="padding:14px;background:white;color:#9C2B2B;border:1px solid #9C2B2B;border-radius:10px;font-weight:700;justify-content:center" ${choreCount === 0 ? 'disabled' : ''}>
+        ${ic.trash} Clear all chores ${choreCount ? `(${choreCount})` : ''}
+      </button>
+      <div style="font-size:11px;opacity:0.6;margin-top:-4px">Wipes the chore list only. Keeps members, store, completion history, and payouts.</div>
+
+      <button class="btn" data-action="clear-history" style="padding:14px;background:white;color:#9C2B2B;border:1px solid #9C2B2B;border-radius:10px;font-weight:700;justify-content:center" ${completionCount === 0 ? 'disabled' : ''}>
+        ${ic.trash} Clear ledger history ${completionCount ? `(${completionCount})` : ''}
+      </button>
+      <div style="font-size:11px;opacity:0.6;margin-top:-4px">Wipes completion history and payouts. Doesn't refund points or change current balances.</div>
+
+      <div class="ornate-rule" style="margin:8px 0"></div>
+
+      <button class="btn" data-action="reset-all" style="padding:14px;background:#9C2B2B;color:white;border:none;border-radius:10px;font-weight:700;justify-content:center">${ic.trash} Reset everything</button>
+      <div style="font-size:11px;opacity:0.6;margin-top:-4px">Nuclear option. Wipes members, chores, store, history — all of it.</div>
+
+      <div style="font-size:11px;opacity:0.5;margin-top:8px">All data lives in your browser via localStorage. Once you wire Firestore, change the <code>db</code> object at the top of the file.</div>
+    </div>`;
+}
+
+function profileModalHTML() {
+  const m = state.members.find(mm => mm.id === view.showProfile);
+  if (!m) return '';
+  return modalShell(`
+    <div class="display-font" style="font-size:24px;font-weight:800;margin-bottom:4px">${escapeHtml(m.name)}'s profile</div>
+    <div style="opacity:0.7;font-size:13px;margin-bottom:18px">Upload a photo to use instead of the pixel avatar.</div>
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:18px">
+      ${avatarHTML(m, 96)}
+      <div style="flex:1">
+        <label class="upload-area" style="display:block">
+          ${ic.upload}
+          <div style="font-weight:600;margin-top:6px">Upload photo</div>
+          <div style="font-size:11px;opacity:0.6;margin-top:2px">JPG, PNG · auto-resized</div>
+          <input type="file" accept="image/*" style="display:none" data-action="upload-profile-photo" data-user-id="${m.id}"/>
+        </label>
+        ${m.photoUrl ? `<button class="btn btn-ghost" data-action="remove-profile-photo" data-user-id="${m.id}" style="margin-top:8px;width:100%;justify-content:center">${ic.trash} Remove photo</button>` : ''}
+      </div>
+    </div>
+    <div style="display:grid;gap:10px">
+      <label><span class="field-label">Name</span>
+        <input class="input-base" data-action="update-member" data-user-id="${m.id}" data-field="name" value="${escapeHtml(m.name)}"/>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <span class="field-label">Total points</span>
+          <div class="display-font" style="font-size:24px;font-weight:800">${m.pointsAllTime}</div>
+        </div>
+        <div>
+          <span class="field-label">Streak</span>
+          <div class="display-font" style="font-size:24px;font-weight:800">${m.streak}🔥</div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function rewardsShopModalHTML() {
+  // legacy entry — redirect to store tab
+  setView({ showRewardsShop: false, tab: "store" });
+  return '';
+}
+
+/* ============================================================
+   MAIN RENDER
+   ============================================================ */
+
+function render() {
+  const user = getActiveUser();
+  const isParent = user.role === "parent";
+  const kidModeOn = state.kidMode && !isParent;
+
+  let mainHTML = "";
+  if (view.tab === "today")  mainHTML = buildTodayView();
+  if (view.tab === "store")  mainHTML = buildStoreView();
+  if (view.tab === "house")  mainHTML = buildHouseView();
+  if (view.tab === "crew")   mainHTML = buildCrewView();
+  if (view.tab === "review" && isParent) mainHTML = buildReviewView();
+  if (view.tab === "ledger" && isParent) mainHTML = buildLedgerView();
+
+  document.getElementById('app').className = kidModeOn ? "kid-mode" : "";
+  document.getElementById('app').style.minHeight = "100vh";
+  document.getElementById('app').innerHTML = `
+    ${buildHeader()}
+    ${buildHeroStats()}
+    ${buildTabs()}
+    <main style="padding:12px 24px 100px;max-width:1100px;margin:0 auto">${mainHTML}</main>
+    ${isParent && view.tab !== "store" ? `<button class="fab" data-action="open-add-chore" aria-label="Add chore">${ic.plus}</button>` : ''}
+    ${isParent && view.tab === "store" ? `<button class="fab" data-action="add-reward" aria-label="Add reward">${ic.plus}</button>` : ''}
+    <footer class="mono-font" style="text-align:center;padding:40px 24px;opacity:0.5;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Boyd Family Operations · v1.0</footer>
+    ${buildModal()}
+  `;
+}
+
+/* ============================================================
+   EVENT DELEGATION — single listener for everything
+   ============================================================ */
+
+document.addEventListener('click', async (e) => {
+  // close user menu when clicking outside
+  if (view.userMenuOpen && !e.target.closest('[data-action="toggle-user-menu"]') && !e.target.closest('[data-action="switch-user"]') && !e.target.closest('[data-action="toggle-kid-mode"]') && !e.target.closest('[data-action="open-profile"]')) {
+    view.userMenuOpen = false;
+    render();
+    return;
+  }
+
+  // Modal backdrop close: only when clicking the backdrop element itself,
+  // not when a click bubbles up from inside the modal body.
+  if (e.target.classList && e.target.classList.contains('modal-backdrop')) {
+    view.wizardDraft = null;
+    view.wizardJustAddedCount = 0;
+    setView({ showAdd: false, editingChoreId: null, showRewardsShop: false, showPayout: false, showSettings: false, showProfile: null, showAddReward: false, editingRewardId: null, pendingPhotoChoreId: null });
+    return;
+  }
+
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  const action = target.dataset.action;
+
+  switch (action) {
+    case "toggle-user-menu":
+      e.stopPropagation();
+      setView({ userMenuOpen: !view.userMenuOpen });
+      break;
+    case "switch-user":
+      setState({ activeUserId: target.dataset.userId });
+      setView({ userMenuOpen: false });
+      break;
+    case "toggle-kid-mode":
+      // handled by change event; do nothing on click
+      break;
+    case "set-tab":
+      setView({ tab: target.dataset.tab, userMenuOpen: false, roomFilter: null });
+      break;
+    case "set-settings-tab":
+      setView({ settingsTab: target.dataset.tab });
+      break;
+    case "set-reward-filter":
+      setView({ rewardCategoryFilter: target.dataset.filter });
+      break;
+    case "filter-by-room":
+      setView({ tab: "today", roomFilter: target.dataset.roomId });
+      break;
+    case "clear-room-filter":
+      setView({ roomFilter: null });
+      break;
+    case "complete-chore":
+      completeChore(target.dataset.choreId);
+      break;
+    case "edit-chore":
+      e.stopPropagation();
+      setView({ editingChoreId: target.dataset.choreId });
+      break;
+    case "delete-chore": {
+      const id = target.dataset.choreId;
+      const chore = state.chores.find(c => c.id === id);
+      if (!chore) {
+        showToast("Couldn't find that chore");
+        break;
+      }
+      if (view.confirmingDeleteChoreId === id) {
+        view.editingChoreId = null;
+        view.confirmingDeleteChoreId = null;
+        setState({ chores: state.chores.filter(c => c.id !== id) });
+        showToast("Chore deleted", chore.title);
+      } else {
+        view.confirmingDeleteChoreId = id;
+        setView({});
+        setTimeout(() => {
+          if (view.confirmingDeleteChoreId === id) {
+            view.confirmingDeleteChoreId = null;
+            render();
+          }
+        }, 4000);
+      }
+      break;
+    }
+    case "open-add-chore":
+      view.wizardDraft = null; // forces re-init in wizardModalHTML
+      view.wizardStep = 0;
+      view.wizardJustAddedCount = 0;
+      setView({ showAdd: true });
+      break;
+
+    /* === WIZARD === */
+    case "wizard-cancel":
+      view.wizardDraft = null;
+      view.wizardJustAddedCount = 0;
+      setView({ showAdd: false });
+      break;
+    case "wizard-back":
+      setView({ wizardStep: Math.max(0, view.wizardStep - 1) });
+      break;
+    case "wizard-next": {
+      // Sync any open input fields to draft before advancing
+      const titleInput = document.getElementById('wizard-title');
+      if (titleInput && view.wizardDraft) view.wizardDraft.title = titleInput.value;
+      setView({ wizardStep: Math.min(4, view.wizardStep + 1) });
+      break;
+    }
+    case "wizard-pick-library": {
+      const t = target.dataset;
+      const room = state.rooms.find(r => r.name === t.room);
+      view.wizardDraft = {
+        ...view.wizardDraft,
+        title: t.title,
+        roomId: room?.id || view.wizardDraft.roomId,
+        points: +t.points,
+        dollars: +t.dollars,
+        recurrence: t.recurrence,
+        photoRequired: t.photo === "true",
+      };
+      // Skip ahead to "who" — they tapped a complete preset
+      setView({ wizardStep: 1 });
+      break;
+    }
+    case "wizard-title-input":
+      view.wizardDraft.title = target.value;
+      // don't re-render on every keystroke
+      break;
+    case "wizard-set-assignee":
+      view.wizardDraft.assignee = target.dataset.id || null;
+      view.wizardLastAssignee = view.wizardDraft.assignee;
+      setView({ wizardStep: 2 });
+      break;
+    case "wizard-set-recurrence":
+      view.wizardDraft.recurrence = target.dataset.id;
+      view.wizardLastRecurrence = target.dataset.id;
+      setView({}); // re-render to show selection
+      break;
+    case "wizard-set-room":
+      view.wizardDraft.roomId = target.dataset.id;
+      setView({});
+      break;
+    case "wizard-set-points":
+      view.wizardDraft.points = +target.dataset.value;
+      setView({});
+      break;
+    case "wizard-set-dollars":
+      view.wizardDraft.dollars = +target.dataset.value;
+      setView({});
+      break;
+    case "wizard-points-input":
+      view.wizardDraft.points = +target.value || 0;
+      break;
+    case "wizard-dollars-input":
+      view.wizardDraft.dollars = +target.value || 0;
+      break;
+    case "wizard-toggle-photo":
+      view.wizardDraft.photoRequired = !view.wizardDraft.photoRequired;
+      setView({});
+      break;
+    case "wizard-add-and-continue": {
+      const d = view.wizardDraft;
+      // Pick up any unsynced title from the input field
+      const titleInput = document.getElementById('wizard-title');
+      if (titleInput && titleInput.value) d.title = titleInput.value;
+      addChoreFromWizard(d);
+      view.wizardJustAddedCount += 1;
+      // Reset draft but keep last-used kid + recurrence for fast multi-add
+      view.wizardDraft = {
+        title: "",
+        roomId: state.rooms[0]?.id || null,
+        assignee: view.wizardLastAssignee,
+        points: 1,
+        dollars: 0,
+        recurrence: view.wizardLastRecurrence,
+        photoRequired: false,
+      };
+      setView({ wizardStep: 0 });
+      break;
+    }
+    case "wizard-add-and-finish": {
+      const d = view.wizardDraft;
+      const titleInput = document.getElementById('wizard-title');
+      if (titleInput && titleInput.value) d.title = titleInput.value;
+      addChoreFromWizard(d);
+      view.wizardJustAddedCount += 1;
+      const count = view.wizardJustAddedCount;
+      view.wizardDraft = null;
+      view.wizardJustAddedCount = 0;
+      setView({ showAdd: false });
+      showToast(`Added ${count} chore${count > 1 ? 's' : ''}`, "Find them in Today");
+      break;
+    }
+    /* === END WIZARD === */
+    case "approve-completion":
+      approveCompletion(target.dataset.id, true);
+      break;
+    case "reject-completion":
+      approveCompletion(target.dataset.id, false);
+      break;
+    case "view-photo":
+      e.stopPropagation();
+      const w = window.open();
+      w.document.write(`<img src="${target.dataset.photo}" style="max-width:100%"/>`);
+      break;
+    case "redeem-reward":
+      redeemReward(target.dataset.rewardId);
+      break;
+    case "edit-reward":
+      setView({ editingRewardId: target.dataset.rewardId });
+      break;
+    case "add-reward":
+      setView({ showAddReward: true });
+      break;
+    case "delete-reward": {
+      const id = target.dataset.rewardId;
+      const reward = state.rewards.find(r => r.id === id);
+      if (!reward) {
+        showToast("Couldn't find that item");
+        break;
+      }
+      // Two-tap confirm: first tap arms it, second tap deletes.
+      if (view.confirmingDeleteRewardId === id) {
+        view.editingRewardId = null;
+        view.showAddReward = false;
+        view.confirmingDeleteRewardId = null;
+        setState({ rewards: state.rewards.filter(r => r.id !== id) });
+        showToast("Removed from store", reward.title);
+      } else {
+        view.confirmingDeleteRewardId = id;
+        setView({});
+        // auto-disarm after 4s
+        setTimeout(() => {
+          if (view.confirmingDeleteRewardId === id) {
+            view.confirmingDeleteRewardId = null;
+            render();
+          }
+        }, 4000);
+      }
+      break;
+    }
+    case "fulfill-redemption":
+      fulfillRedemption(target.dataset.id, true);
+      break;
+    case "deny-redemption":
+      fulfillRedemption(target.dataset.id, false);
+      break;
+    case "open-payout":
+      setView({ showPayout: true });
+      break;
+    case "payout-kid":
+      const kid = state.members.find(m => m.id === target.dataset.kidId);
+      if (kid && kid.allowance > 0) {
+        try { await navigator.clipboard.writeText(kid.allowance.toFixed(2)); } catch {}
+        recordPayout(kid.id, kid.allowance, "greenlight");
+      }
+      break;
+    case "open-settings":
+      setView({ showSettings: true });
+      break;
+    case "open-profile":
+      e.stopPropagation();
+      setView({ showProfile: target.dataset.userId, userMenuOpen: false, showSettings: false });
+      break;
+    case "remove-profile-photo":
+      setState({ members: state.members.map(m => m.id === target.dataset.userId ? { ...m, photoUrl: null } : m) });
+      break;
+    case "close-modal":
+      view.wizardDraft = null;
+      view.wizardJustAddedCount = 0;
+      setView({ showAdd: false, editingChoreId: null, showRewardsShop: false, showPayout: false, showSettings: false, showProfile: null, showAddReward: false, editingRewardId: null, pendingPhotoChoreId: null });
+      break;
+    case "export-csv":
+      exportCSV();
+      break;
+    case "export-backup": {
+      const json = JSON.stringify(state, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `boyd-chores-backup-${todayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup downloaded", `boyd-chores-backup-${todayISO()}.json`);
+      break;
+    }
+    case "add-member":
+      const newMember = {
+        id: uid("m"), name: "New crew member", role: "kid",
+        color: PALETTE[state.members.length % PALETTE.length],
+        avatar: state.members.length + 1,
+        photoUrl: null, allowance: 0, pointsAllTime: 0, streak: 0, lastActive: null,
+      };
+      setState({ members: [...state.members, newMember] });
+      break;
+    case "remove-member":
+      if (confirm("Remove this member? Their history stays in the ledger.")) {
+        setState({ members: state.members.filter(m => m.id !== target.dataset.userId) });
+      }
+      break;
+    case "update-member-color":
+      setState({ members: state.members.map(m => m.id === target.dataset.userId ? { ...m, color: target.dataset.color } : m) });
+      break;
+    case "reroll-avatar":
+      setState({ members: state.members.map(m => m.id === target.dataset.userId ? { ...m, avatar: (m.avatar || 0) + 1, photoUrl: null } : m) });
+      break;
+    case "add-room":
+      setState({ rooms: [...state.rooms, { id: uid("r"), name: "New room", emoji: "🏠", health: 1 }] });
+      break;
+    case "remove-room":
+      if (confirm("Remove this room?")) {
+        setState({ rooms: state.rooms.filter(r => r.id !== target.dataset.roomId) });
+      }
+      break;
+    case "clear-chores":
+      if (confirm(`Delete all ${state.chores.length} chores? This won't affect members, the store, or history.`)) {
+        setState({ chores: [], bonusOfferedToday: null });
+        showToast("Chores cleared", "Add new ones with the + button");
+      }
+      break;
+    case "clear-history":
+      if (confirm(`Delete all ${state.completions.length} completion records and ${state.payouts.length} payouts? Current point and dollar balances stay the same.`)) {
+        setState({ completions: [], payouts: [] });
+        showToast("History cleared");
+      }
+      break;
+    case "reset-all":
+      if (confirm("Wipe everything? This cannot be undone.")) {
+        state = { ...DEFAULT_STATE };
+        suppressNextRemoteUpdate = true;
+        await db.save(state);
+        setView({ showSettings: false });
+      }
+      break;
+  }
+});
+
+// form submissions
+document.addEventListener('submit', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  e.preventDefault();
+  const action = target.dataset.action;
+  const fd = new FormData(target);
+
+  if (action === "save-chore") {
+    const id = target.dataset.choreId;
+    const data = {
+      title: fd.get('title'),
+      roomId: fd.get('roomId'),
+      assignee: fd.get('assignee') || null,
+      points: +fd.get('points') || 0,
+      dollars: +fd.get('dollars') || 0,
+      recurrence: fd.get('recurrence'),
+      photoRequired: fd.get('photoRequired') === 'on',
+    };
+    if (id) {
+      setState({ chores: state.chores.map(c => c.id === id ? { ...c, ...data } : c) });
+      showToast("Chore updated", data.title);
+    } else {
+      setState({ chores: [{ id: uid("c"), ...data, status: "open", createdAt: nowISO(), nextDue: todayISO() }, ...state.chores] });
+      showToast("Chore added", data.title);
+    }
+    setView({ showAdd: false, editingChoreId: null });
+  }
+
+  if (action === "save-reward") {
+    const id = target.dataset.rewardId;
+    const editing = id ? state.rewards.find(r => r.id === id) : null;
+    const data = {
+      title: fd.get('title'),
+      description: fd.get('description'),
+      cost: +fd.get('cost') || 1,
+      category: fd.get('category'),
+      emoji: fd.get('emoji') || '🎁',
+      stock: +fd.get('stock'),
+      imageUrl: editing?.imageUrl || null, // preserved separately via upload handler
+    };
+    if (id) {
+      setState({ rewards: state.rewards.map(r => r.id === id ? { ...r, ...data } : r) });
+      showToast("Item updated", data.title);
+    } else {
+      setState({ rewards: [{ id: uid("rw"), ...data }, ...state.rewards] });
+      showToast("Added to store", data.title);
+    }
+    setView({ showAddReward: false, editingRewardId: null });
+  }
+});
+
+// change events (text inputs in settings, kid mode toggle, file uploads)
+// Live input updates (no re-render) for wizard text fields
+document.addEventListener('input', (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  const action = target.dataset.action;
+  if (action === "wizard-title-input" && view.wizardDraft) {
+    view.wizardDraft.title = target.value;
+    // Enable/disable the Next button without full re-render (preserves input focus)
+    const nextBtn = document.querySelector('[data-action="wizard-next"]');
+    if (nextBtn) {
+      if (target.value.trim().length > 0) nextBtn.removeAttribute('disabled');
+      else nextBtn.setAttribute('disabled', '');
+    }
+  }
+  if (action === "wizard-points-input" && view.wizardDraft) {
+    view.wizardDraft.points = +target.value || 0;
+  }
+  if (action === "wizard-dollars-input" && view.wizardDraft) {
+    view.wizardDraft.dollars = +target.value || 0;
+  }
+});
+
+document.addEventListener('change', async (e) => {
+  const target = e.target.closest('[data-action]');
+  if (!target) return;
+  const action = target.dataset.action;
+
+  if (action === "update-member") {
+    const userId = target.dataset.userId;
+    const field = target.dataset.field;
+    setState({ members: state.members.map(m => m.id === userId ? { ...m, [field]: target.value } : m) });
+  }
+
+  if (action === "update-room") {
+    const roomId = target.dataset.roomId;
+    const field = target.dataset.field;
+    setState({ rooms: state.rooms.map(r => r.id === roomId ? { ...r, [field]: target.value } : r) });
+  }
+
+  if (action === "toggle-kid-mode") {
+    setState({ kidMode: target.checked });
+  }
+
+  if (action === "upload-profile-photo") {
+    const file = target.files[0];
+    if (!file) return;
+    showToast("Uploading photo…");
+    try {
+      const url = await db.uploadImage(file);
+      setState({ members: state.members.map(m => m.id === target.dataset.userId ? { ...m, photoUrl: url } : m) });
+      showToast("Profile photo updated");
+    } catch (err) {
+      showToast("Upload failed", err.message);
+    }
+  }
+
+  if (action === "upload-chore-photo") {
+    const file = target.files[0];
+    if (!file) return;
+    showToast("Attaching photo…");
+    try {
+      const url = await db.uploadImage(file);
+      completeChore(target.dataset.choreId, url);
+    } catch (err) {
+      showToast("Upload failed", err.message);
+    }
+  }
+
+  if (action === "upload-reward-image") {
+    const file = target.files[0];
+    if (!file) return;
+    try {
+      const url = await db.uploadImage(file);
+      // Stash on the editing reward (or pending new reward staging via DOM)
+      const id = view.editingRewardId;
+      if (id) {
+        setState({ rewards: state.rewards.map(r => r.id === id ? { ...r, imageUrl: url } : r) });
+        showToast("Image uploaded");
+      } else {
+        // for new reward, write to a temp slot rendered immediately
+        const preview = document.getElementById('reward-image-preview');
+        if (preview) preview.innerHTML = `<img src="${url}"/>`;
+        // store on form so submit handler can pick it up
+        const form = target.closest('form');
+        let hidden = form.querySelector('input[name="imageUrl"]');
+        if (!hidden) {
+          hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'imageUrl';
+          form.appendChild(hidden);
+        }
+        hidden.value = url;
+        // Update the submit handler to read this
+      }
+    } catch (err) { showToast("Upload failed"); }
+  }
+
+  if (action === "import-backup") {
+    const file = target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        // Sanity check: must have at least members and chores arrays
+        if (!Array.isArray(imported.members) || !Array.isArray(imported.chores)) {
+          showToast("Invalid backup file", "Missing members or chores");
+          return;
+        }
+        const memberCount = imported.members.length;
+        const choreCount = imported.chores.length;
+        const ok = window.confirm(`Restore backup with ${memberCount} members and ${choreCount} chores? This replaces everything currently in the app.`);
+        if (!ok) {
+          target.value = ""; // reset so same file can be retried
+          return;
+        }
+        state = imported;
+        suppressNextRemoteUpdate = true;
+        await db.save(state);
+        setView({ showSettings: false });
+        showToast("Backup restored", `${memberCount} members · ${choreCount} chores`);
+      } catch (err) {
+        showToast("Couldn't read file", err.message);
+      } finally {
+        target.value = "";
+      }
+    };
+    reader.readAsText(file);
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(async () => {
+  // Show a brief loader so the screen isn't blank while Firestore loads
+  document.getElementById('app').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;color:#0E2A47;font-family:'Inter',sans-serif">
+      <img src="${document.querySelector('link[rel=icon]').href}" alt="" style="width:48px;height:48px"/>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:800">Loading the family ledger…</div>
+      <div style="font-size:12px;opacity:0.6">Connecting to Firestore</div>
+    </div>`;
+
+  let loaded = null;
+  try {
+    loaded = await db.load();
+  } catch (e) {
+    console.error("Initial load failed:", e);
+    showToast("Couldn't connect to Firestore", "Check your connection");
+  }
+
+  state = loaded || JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+  // refresh daily bonus
+  if (!state.bonusOfferedToday || state.bonusOfferedToday.date !== todayISO()) {
+    const open = state.chores.filter(c => c.status === "open");
+    if (open.length) {
+      const pick = open[Math.floor(Math.random() * open.length)];
+      state.bonusOfferedToday = { date: todayISO(), choreId: pick.id, multiplier: 2 };
+    }
+  }
+
+  // gentle decay of room health (capped)
+  state.rooms = state.rooms.map(r => ({ ...r, health: Math.max(0.1, r.health) }));
+
+  // First save establishes the doc if it didn't exist
+  try { await db.save(state); } catch (e) { /* will retry on next change */ }
+  render();
+
+  // Live sync: when another family member changes something, refresh the local state.
+  // We suppress the update right after our own writes so we don't clobber typing in progress.
+  db.subscribe((remoteState) => {
+    if (suppressNextRemoteUpdate) {
+      suppressNextRemoteUpdate = false;
+      return;
+    }
+    // Don't overwrite if the remote is identical (avoids unnecessary re-renders)
+    if (JSON.stringify(remoteState) === JSON.stringify(state)) return;
+    state = remoteState;
+    render();
+  });
+})();
+</script>
+</body>
+</html>
