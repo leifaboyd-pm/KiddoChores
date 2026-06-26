@@ -56,6 +56,34 @@
   }
   .slide-up { animation: slide-up 0.5s cubic-bezier(.2,.8,.4,1) both; }
 
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
+  @keyframes celebration-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes celebration-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  @keyframes celebration-bounce {
+    0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+    60%  { transform: scale(1.3) rotate(15deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes celebration-scale-in {
+    0%   { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes celebration-fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -467,6 +495,19 @@ const view = {
   confirmingDeleteRewardId: null,
   confirmingDeleteChoreId: null,
   roomFilter: null, // when set, Today view filters by this room id
+  travelSub: "booked",
+  pinDraft: "", // raw PIN being typed — lives outside state so it never persists
+  financeUnlocked: false,
+  parentSwitchUnlocked: false, // true once a parent has PIN'd into their account this tab
+  parentOpsUnlocked: false,    // true once Personal mode was unlocked this tab
+  pinGate: null, // when set: { reason, pendingAction, errorShake }. Shows the PIN gate modal.
+};
+
+// Global keystroke updater for the PIN input. Lives on window so the inline
+// oninput attribute can reach it. Does NOT trigger render() — that would steal
+// keyboard focus on mobile mid-type.
+window.__pinDraftUpdate = (val) => {
+  view.pinDraft = val;
 };
 
 let toastTimer = null;
@@ -500,6 +541,58 @@ function setState(patch) {
 function setView(patch) {
   Object.assign(view, patch);
   render();
+}
+
+/* ============================================================
+   FINANCE PIN — hashed storage
+   We never store the raw PIN. Instead we store SHA-256(pin + familyId).
+   The familyId acts as a per-family salt so the same PIN across two
+   families produces different hashes; this also means the hash from
+   one family can't be replayed against another's data.
+   ============================================================ */
+async function hashPin(pin) {
+  const data = new TextEncoder().encode(`${pin}::${FAMILY_ID}::boyd-chores-v1`);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Pending actions queue: when a PIN gate fires, we stash the action to run
+// on successful unlock. Stored as a function (not a string) for type safety.
+let __pendingGateAction = null;
+
+function requestPinGate(reason, action, extras = {}) {
+  // Map of which unlock flag covers which reason
+  const alreadyUnlocked = {
+    'parent-switch': view.parentSwitchUnlocked,
+    'parent-ops':    view.parentOpsUnlocked,
+    'finance':       view.financeUnlocked,
+  }[reason];
+  if (alreadyUnlocked) {
+    action();
+    return;
+  }
+  // No PIN set yet? Auto-prompt to set one, then run the action.
+  if (!state.financePin) {
+    view.pinDraft = "";
+    view.pinGate = { reason: 'set-pin', originalReason: reason, ...extras };
+    __pendingGateAction = action;
+    render();
+    return;
+  }
+  view.pinDraft = "";
+  view.pinGate = { reason, ...extras };
+  __pendingGateAction = action;
+  render();
+}
+
+function applyUnlockForReason(reason) {
+  if (reason === 'parent-switch') view.parentSwitchUnlocked = true;
+  if (reason === 'parent-ops')    view.parentOpsUnlocked = true;
+  if (reason === 'finance')       view.financeUnlocked = true;
+  // First-time PIN set: grant unlock for whatever the user was originally trying to do
+  if (reason === 'set-pin') {
+    // No-op here; handler below uses originalReason to grant the right unlock.
+  }
 }
 
 /* ============================================================
@@ -587,6 +680,176 @@ function fireConfetti() {
   setTimeout(() => root.remove(), 1800);
 }
 
+/* ============================================================
+   DAY-DONE CELEBRATION
+   When a user completes their last open task for the day, throw
+   a full-screen confetti party with a rotating motivational line.
+   Fires at most once per user per day (tracked in state.dayCompleted).
+   ============================================================ */
+
+const CELEBRATION_KID_QUOTES = [
+  { hl: "Crushed it!",          sub: "Every task done. Go enjoy what's next." },
+  { hl: "All done!",            sub: "You showed up, you finished. That's the formula." },
+  { hl: "Day = won.",           sub: "Discipline today, freedom tomorrow." },
+  { hl: "Clean sweep!",         sub: "Nothing left on the list. Reward yourself." },
+  { hl: "You're on fire!",      sub: "Consistency is what builds champions." },
+  { hl: "Champion status.",     sub: "Small wins stack into big results." },
+  { hl: "100% complete!",       sub: "Future you is going to thank present you." },
+  { hl: "Bossed it!",           sub: "Effort is the secret ingredient. You brought it." },
+  { hl: "Mission complete.",    sub: "Now go play with a clear conscience." },
+  { hl: "Boom — done!",         sub: "This is what showing up looks like." },
+  { hl: "Slayed it!",           sub: "Hard work beats talent when talent doesn't work hard." },
+  { hl: "Chef's kiss.",         sub: "Perfectly executed. Now relax." },
+];
+
+const CELEBRATION_PARENT_QUOTES = [
+  { hl: "Day cleared.",         sub: "Discipline equals freedom. — Jocko Willink" },
+  { hl: "All done!",            sub: "Compound interest applies to effort too." },
+  { hl: "Inbox: zero.",         sub: "You did the things. Now do the recovery." },
+  { hl: "Executed.",            sub: "Plans without execution are daydreams." },
+  { hl: "Closed loops.",        sub: "An ordered mind is a powerful mind." },
+  { hl: "Mission complete.",    sub: "Show up. Do the work. Repeat. — that's it." },
+  { hl: "Boxes checked.",       sub: "Focus is choosing what NOT to do. You chose well." },
+  { hl: "Done and dusted.",     sub: "Small consistent actions, massive long-term results." },
+  { hl: "Day = won.",           sub: "You can't out-earn a disciplined schedule." },
+  { hl: "Crushed the list.",    sub: "Most people quit when it gets boring. Not you." },
+  { hl: "100% complete!",       sub: "What you do daily becomes who you are." },
+  { hl: "Locked in.",           sub: "The wins are in the boring fundamentals. You nailed them." },
+];
+
+function userTasksOpenToday(user) {
+  const today = todayISO();
+  if (state.workspace === "parent-ops" && user.role === "parent") {
+    // In Parent Ops, "today" = parent tasks owned by user, due today or overdue, not done
+    return (state.parentTasks || []).filter(t =>
+      t.ownerId === user.id &&
+      t.status !== "done" &&
+      t.dueDate && t.dueDate <= today
+    );
+  }
+  // Family workspace: chores due today, assigned to user (or unassigned for parents)
+  return state.chores.filter(c => {
+    if (c.status !== "open") return false;
+    if (!(c.nextDue <= today || c.recurrence === "once")) return false;
+    if (user.role === "kid") return c.assignee === user.id;
+    return c.assignee === user.id || !c.assignee;
+  });
+}
+
+function checkAndCelebrate(user) {
+  if (!user) return;
+  // Session-only: avoid re-firing celebration within the same tab session for this user.
+  // Resets when the tab closes — so opening fresh the next day starts clean.
+  view.celebratedThisSession = view.celebratedThisSession || {};
+  const key = `${user.id}:${todayISO()}`;
+  if (view.celebratedThisSession[key]) return;
+
+  // Must have nothing remaining for this user
+  const remaining = userTasksOpenToday(user);
+  if (remaining.length > 0) return;
+
+  // Did this user complete at least one task today? (otherwise we'd celebrate every
+  // visit to an empty profile, which is annoying)
+  const completedToday = (() => {
+    const today = todayISO();
+    if (state.workspace === "parent-ops" && user.role === "parent") {
+      return (state.parentTasks || []).some(t =>
+        t.ownerId === user.id && t.status === "done" &&
+        t.completedAt && new Date(t.completedAt).toISOString().slice(0,10) === today
+      );
+    }
+    return state.completions.some(c =>
+      c.by === user.id && c.status !== "denied" &&
+      c.when && c.when.slice(0,10) === today
+    );
+  })();
+  if (!completedToday) return;
+
+  view.celebratedThisSession[key] = true;
+  fireDayCelebration(user);
+}
+
+function fireDayCelebration(user) {
+  const isKid = user.role === "kid";
+  const quotes = isKid ? CELEBRATION_KID_QUOTES : CELEBRATION_PARENT_QUOTES;
+  const pick = quotes[Math.floor(Math.random() * quotes.length)];
+
+  // Remove any previous celebration overlay
+  const existing = document.getElementById('day-celebration');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'day-celebration';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 200;
+    background: radial-gradient(ellipse at center, rgba(14,42,71,0.85) 0%, rgba(14,42,71,0.95) 70%);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    animation: celebration-fade-in 0.4s ease both;
+  `;
+
+  overlay.innerHTML = `
+    <div style="text-align:center;padding:24px;max-width:560px;pointer-events:none">
+      <div style="font-size:72px;animation:celebration-bounce 0.8s cubic-bezier(.34,1.56,.64,1) both">🎉</div>
+      <div class="display-font" style="font-size:clamp(40px, 12vw, 80px);font-weight:900;color:#F7F4ED;letter-spacing:-0.02em;line-height:1.05;margin-top:8px;animation:celebration-scale-in 0.6s cubic-bezier(.34,1.56,.64,1) both;animation-delay:0.15s;opacity:0">
+        ${escapeHtml(pick.hl)}
+      </div>
+      <div style="font-size:18px;color:#D4A93C;font-weight:600;margin-top:14px;animation:celebration-fade-up 0.6s ease both;animation-delay:0.4s;opacity:0;font-family:'Fraunces',Georgia,serif;font-style:italic">
+        ${escapeHtml(pick.sub)}
+      </div>
+      <div style="margin-top:28px;font-size:13px;color:#F7F4ED;opacity:0.6;letter-spacing:0.08em;text-transform:uppercase;animation:celebration-fade-up 0.6s ease both;animation-delay:0.9s">
+        ${escapeHtml(user.name)} · ${new Date().toLocaleDateString(undefined, { weekday:'long', month:'short', day:'numeric' })}
+      </div>
+      <div style="margin-top:24px;font-size:11px;color:#F7F4ED;opacity:0.4;animation:celebration-fade-up 0.6s ease both;animation-delay:1.4s">
+        tap anywhere to dismiss
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Multi-burst confetti from several origins for a bigger party feel
+  const colors = ["#D4A93C", "#F5D478", "#FFFFFF", "#0A4F37", "#0A3091", "#9C2B2B", "#1F6E8C"];
+  const burstFromXY = (x, y, count, delay) => {
+    setTimeout(() => {
+      const root = document.createElement('div');
+      root.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:201`;
+      document.body.appendChild(root);
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = "confetti-piece";
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.width = `${8 + Math.random()*10}px`;
+        p.style.height = `${10 + Math.random()*12}px`;
+        p.style.setProperty('--tx', `${(Math.random()-0.5)*600}px`);
+        p.style.setProperty('--ty', `${-300 - Math.random()*400}px`);
+        p.style.setProperty('--r', `${(Math.random()-0.5)*1080}deg`);
+        p.style.animationDelay = `${Math.random()*0.2}s`;
+        p.style.animationDuration = `${1.4 + Math.random()*1.2}s`;
+        root.appendChild(p);
+      }
+      setTimeout(() => root.remove(), 3000);
+    }, delay);
+  };
+
+  const w = window.innerWidth, h = window.innerHeight;
+  burstFromXY(w * 0.5, h * 0.6,  80, 0);     // center
+  burstFromXY(w * 0.2, h * 0.85, 50, 200);   // bottom left
+  burstFromXY(w * 0.8, h * 0.85, 50, 350);   // bottom right
+  burstFromXY(w * 0.5, h * 0.95, 60, 600);   // bottom center
+  burstFromXY(w * 0.3, h * 0.5,  30, 900);   // left mid (encore)
+  burstFromXY(w * 0.7, h * 0.5,  30, 1000);  // right mid (encore)
+
+  // Dismiss on tap, or auto-dismiss after 6 seconds
+  const dismiss = () => {
+    overlay.style.animation = 'celebration-fade-out 0.4s ease both';
+    setTimeout(() => overlay.remove(), 400);
+  };
+  overlay.addEventListener('click', dismiss);
+  setTimeout(dismiss, 6000);
+}
+
 function showToast(msg, sub = "") {
   const existing = document.getElementById('toast');
   if (existing) existing.remove();
@@ -670,6 +933,11 @@ function completeChore(choreId, attachedPhotoUrl = null) {
   } else {
     showToast("Submitted for approval", chore.title);
   }
+
+  // If this completion (or approval) cleared the user's day, fire the big celebration
+  if (completion.status === "approved") {
+    checkAndCelebrate(user);
+  }
 }
 
 function approveCompletion(compId, approve) {
@@ -701,6 +969,8 @@ function approveCompletion(compId, approve) {
   if (approve) {
     fireConfetti();
     showToast(`Approved! ${member?.name} earned ${comp.points} pts`, chore?.title);
+    // Did the approved kid just finish their day?
+    if (member) checkAndCelebrate(member);
   } else {
     showToast("Sent back for redo", chore?.title);
   }
@@ -1449,6 +1719,7 @@ function tripCardHTML(trip, idx, isWishlist = false) {
   const pct = tripSavingsPct(trip);
   const hasAttach = (trip.attachments || []).length;
   const hasLinks = (trip.links || []).length;
+  const showMoney = !!view.financeUnlocked;
 
   return `
     <div class="card slide-up" style="padding:0;overflow:hidden;animation-delay:${idx * 0.04}s;cursor:pointer" data-action="edit-trip" data-id="${trip.id}">
@@ -1466,13 +1737,17 @@ function tripCardHTML(trip, idx, isWishlist = false) {
         <div class="display-font" style="font-size:18px;font-weight:800;line-height:1.2">${escapeHtml(trip.title || 'Untitled trip')}</div>
         ${trip.destination ? `<div style="font-size:13px;opacity:0.8;margin-top:2px">📍 ${escapeHtml(trip.destination)}</div>` : ''}
         <div style="font-size:12px;opacity:0.7;margin-top:6px">${escapeHtml(fmtTripDates(trip))}</div>
-        ${trip.estCost ? `
+        ${trip.estCost && showMoney ? `
           <div style="margin-top:10px">
             <div style="display:flex;justify-content:space-between;font-size:11px;opacity:0.7;margin-bottom:3px">
               <span>${fmtDollars((trip.paid||0) + (trip.saved||0))} of ${fmtDollars(trip.estCost)}</span>
               <span>${pct}%</span>
             </div>
             <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          </div>
+        ` : trip.estCost ? `
+          <div style="margin-top:10px;font-size:11px;opacity:0.5;display:flex;align-items:center;gap:6px">
+            <span>🔒</span><span>Budget hidden — unlock in Finances</span>
           </div>
         ` : ''}
         ${(hasAttach || hasLinks) ? `
@@ -1486,22 +1761,18 @@ function tripCardHTML(trip, idx, isWishlist = false) {
 }
 
 function buildTravelFinancesView() {
-  // Gated by PIN
+  // Gated by PIN — uses the universal pin-gate modal
   if (!view.financeUnlocked) {
-    const hasPin = !!state.financePin;
     return `
-      <div class="card slide-up" style="padding:40px;text-align:center;max-width:380px;margin:40px auto">
-        <div style="font-size:48px">🔒</div>
-        <div class="display-font" style="font-size:22px;font-weight:800;margin-top:8px">${hasPin ? 'Finances locked' : 'Set a finance PIN'}</div>
+      <div class="card slide-up" style="padding:32px 24px;text-align:center;max-width:380px;margin:30px auto">
+        <div style="font-size:42px">🔒</div>
+        <div class="display-font" style="font-size:22px;font-weight:800;margin-top:8px">Finances locked</div>
         <div style="opacity:0.7;margin-top:6px;font-size:13px">
-          ${hasPin ? 'Enter your 4-digit PIN to view costs, payments, and savings.' : 'Pick a 4-digit PIN to protect your travel financials. You\'ll be asked for it each time you open this tab.'}
+          Tap below to unlock. PIN remembers until you close this tab.
         </div>
-        <input id="finance-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="input-base"
-          placeholder="••••" style="margin-top:16px;text-align:center;letter-spacing:0.5em;font-size:20px;font-weight:700"/>
-        <button class="btn btn-primary" data-action="finance-unlock" data-mode="${hasPin ? 'verify' : 'set'}" style="margin-top:12px;width:100%;justify-content:center">
-          ${hasPin ? 'Unlock' : 'Set PIN & unlock'}
+        <button class="btn btn-primary" data-action="finance-prompt" style="margin-top:16px;width:100%;justify-content:center">
+          Enter PIN
         </button>
-        ${hasPin ? `<button class="btn btn-ghost" data-action="finance-reset-pin" style="margin-top:6px;width:100%;justify-content:center;font-size:12px;opacity:0.6">Forgot PIN — reset</button>` : ''}
       </div>`;
   }
 
@@ -1909,6 +2180,8 @@ function buildLedgerView() {
    ============================================================ */
 
 function buildModal() {
+  // PIN gate takes priority over every other modal — if it's up, nothing else shows
+  if (view.pinGate) return pinGateModalHTML();
   if (view.pendingPhotoChoreId) return photoModalHTML();
   if (view.showAdd) return wizardModalHTML();
   if (view.editingChoreId) return choreFormModalHTML();
@@ -1920,6 +2193,55 @@ function buildModal() {
   if (view.showParentTaskModal) return parentTaskModalHTML();
   if (view.showTripModal) return tripFormModalHTML();
   return '';
+}
+
+function pinGateModalHTML() {
+  const gate = view.pinGate;
+  if (!gate) return '';
+  const hasPin = !!state.financePin;
+  const shake = gate.errorShake;
+  const reasons = {
+    'parent-switch':   { icon: '🔒', title: 'Sign in as parent', sub: `Enter your 4-digit PIN to switch to ${escapeHtml(gate.targetName || 'this account')}.` },
+    'parent-ops':      { icon: '🎯', title: 'Personal mode', sub: 'Enter your 4-digit PIN to unlock Parent Ops.' },
+    'finance':         { icon: '💰', title: 'Travel finances', sub: 'Enter your 4-digit PIN to view budgets, payments, and savings.' },
+    'set-pin':         { icon: '🔐', title: 'Set a family PIN', sub: "Pick a 4-digit PIN. You'll use it to enter parent mode, Personal workspace, and Finances." },
+  };
+  const r = reasons[gate.reason] || reasons['parent-switch'];
+  const setting = gate.reason === 'set-pin' || !hasPin;
+  const pinSoFar = view.pinDraft || '';
+  return `<div class="modal-backdrop pin-gate-backdrop">
+    <div class="modal-body" style="max-width:380px;animation:${shake ? 'shake 0.4s' : 'none'}">
+      <button class="modal-close" data-action="pin-gate-cancel">${ic.x}</button>
+      <div style="text-align:center;padding:8px 4px 4px">
+        <div style="font-size:42px">${r.icon}</div>
+        <div class="display-font" style="font-size:22px;font-weight:800;margin-top:8px">${r.title}</div>
+        <div style="opacity:0.7;margin-top:6px;font-size:13px">${r.sub}</div>
+        <input
+          id="pin-gate-input"
+          type="tel"
+          inputmode="numeric"
+          pattern="[0-9]{4}"
+          maxlength="4"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          class="input-base"
+          placeholder="••••"
+          value="${escapeHtml(pinSoFar)}"
+          style="margin-top:18px;text-align:center;letter-spacing:0.6em;font-size:24px;font-weight:700;padding-left:0.6em"
+          oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,4); window.__pinDraftUpdate && window.__pinDraftUpdate(this.value); if(this.value.length===4){document.getElementById('pin-gate-submit').click();}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('pin-gate-submit').click();}"
+        />
+        <button id="pin-gate-submit" class="btn btn-primary" data-action="pin-gate-submit" data-mode="${setting ? 'set' : 'verify'}" style="margin-top:14px;width:100%;justify-content:center">
+          ${setting ? 'Set PIN & continue' : 'Unlock'}
+        </button>
+        ${hasPin && gate.reason !== 'set-pin' ? `
+          <button class="btn btn-ghost" data-action="finance-reset-pin" style="margin-top:6px;width:100%;justify-content:center;font-size:12px;opacity:0.6">Forgot PIN — reset</button>
+        ` : ''}
+      </div>
+    </div>
+  </div>`;
 }
 
 function modalShell(content) {
@@ -2727,7 +3049,9 @@ document.addEventListener('click', async (e) => {
 
   // Modal backdrop close: only when clicking the backdrop element itself,
   // not when a click bubbles up from inside the modal body.
-  if (e.target.classList && e.target.classList.contains('modal-backdrop')) {
+  // PIN gate is intentionally non-dismissable on outside click — user must
+  // explicitly cancel via the X button.
+  if (e.target.classList && e.target.classList.contains('modal-backdrop') && !e.target.classList.contains('pin-gate-backdrop')) {
     view.wizardDraft = null;
     view.wizardJustAddedCount = 0;
     view.parentTaskDraft = null;
@@ -2745,10 +3069,22 @@ document.addEventListener('click', async (e) => {
       e.stopPropagation();
       setView({ userMenuOpen: !view.userMenuOpen });
       break;
-    case "switch-user":
-      setState({ activeUserId: target.dataset.userId });
+    case "switch-user": {
+      const targetId = target.dataset.userId;
+      const targetMember = state.members.find(m => m.id === targetId);
+      if (!targetMember) break;
+      // If switching to a parent and parent-switch isn't unlocked, request PIN
+      if (targetMember.role === "parent" && !view.parentSwitchUnlocked) {
+        setView({ userMenuOpen: false });
+        requestPinGate('parent-switch', () => {
+          setState({ activeUserId: targetId });
+        }, { targetName: targetMember.name });
+        break;
+      }
+      setState({ activeUserId: targetId });
       setView({ userMenuOpen: false });
       break;
+    }
     case "toggle-kid-mode":
       // handled by change event; do nothing on click
       break;
@@ -3025,12 +3361,21 @@ document.addEventListener('click', async (e) => {
     case "clear-wallpaper":
       setState({ members: state.members.map(m => m.id === target.dataset.userId ? { ...m, bgWallpaper: null } : m) });
       break;
-    case "set-workspace":
-      state.workspace = target.dataset.ws;
-      view.tab = target.dataset.ws === "parent-ops" ? "plan" : "today";
-      view.roomFilter = null;
-      render();
+    case "set-workspace": {
+      const ws = target.dataset.ws;
+      const enterParentOps = () => {
+        state.workspace = ws;
+        view.tab = ws === "parent-ops" ? "plan" : "today";
+        view.roomFilter = null;
+        render();
+      };
+      if (ws === "parent-ops" && !view.parentOpsUnlocked) {
+        requestPinGate('parent-ops', enterParentOps);
+      } else {
+        enterParentOps();
+      }
       break;
+    }
     case "open-add-parent-task":
       view.parentTaskDraft = {
         id: null,
@@ -3069,6 +3414,11 @@ document.addEventListener('click', async (e) => {
         areas = areas.map(a => a.id === task.areaId ? { ...a, health: Math.min(1, a.health + 0.05) } : a);
       }
       setState({ parentTasks: updated, parentAreas: areas });
+      // If completing (not un-checking), check if it cleared the parent's day
+      if (wasOpen) {
+        fireConfetti(); // small immediate burst as feedback
+        checkAndCelebrate(getActiveUser());
+      }
       break;
     }
     case "toggle-subtask": {
@@ -3295,24 +3645,59 @@ document.addEventListener('click', async (e) => {
       setView({ showTripModal: false });
       break;
     }
-    case "finance-unlock": {
-      const inputEl = document.getElementById('finance-pin-input');
-      const pin = (inputEl?.value || '').trim();
+    case "finance-prompt":
+      requestPinGate('finance', () => { /* unlock applied by gate handler */ });
+      break;
+    case "pin-gate-cancel":
+      __pendingGateAction = null;
+      view.pinDraft = "";
+      view.pinGate = null;
+      render();
+      break;
+    case "pin-gate-submit": {
+      // Read PIN from view.pinDraft (mobile-safe) with DOM fallback
+      let pin = view.pinDraft || '';
+      if (!pin) {
+        const inputEl = document.getElementById('pin-gate-input');
+        pin = (inputEl?.value || '').trim();
+      }
+      pin = pin.replace(/\D/g, '').slice(0, 4);
       if (!/^\d{4}$/.test(pin)) {
-        showToast("4 digits", "Enter a 4-digit numeric PIN");
+        view.pinGate.errorShake = true;
+        render();
+        setTimeout(() => { if (view.pinGate) { view.pinGate.errorShake = false; render(); } }, 400);
         return;
       }
       const mode = target.dataset.mode;
+      const hash = await hashPin(pin);
       if (mode === 'set') {
-        setState({ financePin: pin });
-        view.financeUnlocked = true;
-        showToast("PIN set", "Finances unlocked");
+        // First-time PIN creation — store hash, then grant unlock for the originally-requested action
+        view.pinDraft = "";
+        const origReason = view.pinGate?.originalReason;
+        setState({ financePin: hash });
+        applyUnlockForReason(origReason);
+        view.pinGate = null;
+        const pending = __pendingGateAction;
+        __pendingGateAction = null;
+        showToast("PIN set", "Remember it — you'll need it to unlock parent mode");
         render();
+        if (pending) pending();
       } else {
-        if (pin === state.financePin) {
-          view.financeUnlocked = true;
+        if (hash === state.financePin) {
+          view.pinDraft = "";
+          const reason = view.pinGate?.reason;
+          applyUnlockForReason(reason);
+          view.pinGate = null;
+          const pending = __pendingGateAction;
+          __pendingGateAction = null;
           render();
+          if (pending) pending();
         } else {
+          // Wrong PIN: shake + clear input, but stay on the gate
+          view.pinDraft = "";
+          view.pinGate.errorShake = true;
+          render();
+          setTimeout(() => { if (view.pinGate) { view.pinGate.errorShake = false; render(); } }, 400);
           showToast("Wrong PIN", "Try again");
         }
       }
@@ -3323,9 +3708,13 @@ document.addEventListener('click', async (e) => {
       render();
       break;
     case "finance-reset-pin":
-      if (confirm("Reset your PIN? You'll set a new one. This does NOT erase any trip data.")) {
-        setState({ financePin: null });
+      if (confirm("Reset your PIN? You'll set a new one. This does NOT erase any trip data, but you'll need to re-enter the PIN for parent mode, Personal workspace, and Finances.")) {
+        view.pinGate = null;
+        __pendingGateAction = null;
         view.financeUnlocked = false;
+        view.parentSwitchUnlocked = false;
+        view.parentOpsUnlocked = false;
+        setState({ financePin: null });
         render();
       }
       break;
@@ -3737,6 +4126,12 @@ window.addEventListener('load', () => {
   if (!state.workspace) state.workspace = "family";
   if (!state.trips) state.trips = [];
   if (state.financePin === undefined) state.financePin = null;
+  // If an old plaintext PIN exists (4 digits), upgrade to hashed form
+  if (state.financePin && /^\d{4}$/.test(state.financePin)) {
+    state.financePin = await hashPin(state.financePin);
+    suppressNextRemoteUpdate = true;
+    db.save(state).catch(() => {});
+  }
   state.members = (state.members || []).map(m => ({
     ...m,
     bgPalette: m.bgPalette || "cream",
