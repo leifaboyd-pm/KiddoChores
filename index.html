@@ -567,6 +567,35 @@ window.__ptaskDurationUpdate = (val) => {
   }
 };
 
+// Auto-fill end time when start time changes, if duration is known and
+// end is currently empty (or matches the previously-computed value).
+// Lives on window so the inline oninput can reach it without re-render.
+window.__ptaskStartTimeChange = (startVal) => {
+  if (!view.parentTaskDraft) return;
+  const d = view.parentTaskDraft;
+  if (!d.timeBlock) return;
+  d.timeBlock.start = startVal;
+  // Only auto-fill if we have a duration and an empty end (or a previously auto-filled end)
+  if (!d.durationMin || !startVal) return;
+  const endEl = document.getElementById('ptask-tb-end');
+  // Compute end = start + durationMin
+  const [h, m] = startVal.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return;
+  const totalMin = h * 60 + m + d.durationMin;
+  if (totalMin >= 24 * 60) return; // don't roll into next day
+  const eh = Math.floor(totalMin / 60);
+  const em = totalMin % 60;
+  const endStr = `${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
+  // Don't clobber user-typed end; only fill if empty
+  if (endEl && !endEl.value) {
+    endEl.value = endStr;
+    d.timeBlock.end = endStr;
+  } else if (endEl) {
+    // Sync draft with whatever is in the DOM (user may have typed)
+    d.timeBlock.end = endEl.value;
+  }
+};
+
 let toastTimer = null;
 
 // Debounced save — coalesces rapid state changes into one Firestore write.
@@ -3403,7 +3432,7 @@ function parentTaskModalHTML() {
           </label>
           <label>
             <span class="field-label" style="font-size:10px">Start</span>
-            <input id="ptask-tb-start" type="time" class="input-base" value="${d.timeBlock.start || ''}"/>
+            <input id="ptask-tb-start" type="time" class="input-base" value="${d.timeBlock.start || ''}" oninput="window.__ptaskStartTimeChange && window.__ptaskStartTimeChange(this.value)"/>
           </label>
           <label>
             <span class="field-label" style="font-size:10px">End</span>
@@ -4002,10 +4031,24 @@ document.addEventListener('click', async (e) => {
       view.iconPickerOpen = false;
       render();
       break;
-    case "ptask-set-duration":
-      view.parentTaskDraft.durationMin = parseInt(target.dataset.min, 10);
+    case "ptask-set-duration": {
+      const d = view.parentTaskDraft;
+      d.durationMin = parseInt(target.dataset.min, 10);
+      // If start time is set and end is empty, auto-fill end
+      if (d.timeBlock && d.timeBlock.start && !d.timeBlock.end) {
+        const [h, m] = d.timeBlock.start.split(':').map(Number);
+        if (!isNaN(h) && !isNaN(m)) {
+          const totalMin = h * 60 + m + d.durationMin;
+          if (totalMin < 24 * 60) {
+            const eh = Math.floor(totalMin / 60);
+            const em = totalMin % 60;
+            d.timeBlock.end = `${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
+          }
+        }
+      }
       render();
       break;
+    }
     case "ptask-set-priority":
       view.parentTaskDraft.priority = target.dataset.priority;
       render();
@@ -4018,18 +4061,32 @@ document.addEventListener('click', async (e) => {
       view.parentTaskDraft.recurrence = target.dataset.rec;
       render();
       break;
-    case "ptask-toggle-timeblock":
-      if (view.parentTaskDraft.timeBlock) {
-        view.parentTaskDraft.timeBlock = null;
+    case "ptask-toggle-timeblock": {
+      const d = view.parentTaskDraft;
+      if (d.timeBlock) {
+        d.timeBlock = null;
       } else {
-        view.parentTaskDraft.timeBlock = {
-          date: view.parentTaskDraft.dueDate || todayISO(),
-          start: "09:00",
-          end: "10:00",
+        // Default start = next half-hour from now (e.g. 4:32 PM → 5:00 PM, 4:01 PM → 4:30 PM)
+        const now = new Date();
+        let mins = now.getHours() * 60 + now.getMinutes();
+        mins = Math.ceil(mins / 30) * 30;
+        if (mins >= 24 * 60) mins = 24 * 60 - 30;
+        const sh = Math.floor(mins / 60), sm = mins % 60;
+        const start = `${String(sh).padStart(2,'0')}:${String(sm).padStart(2,'0')}`;
+        // End = start + duration (or +60min if no duration set)
+        const dur = d.durationMin || 60;
+        const endMins = Math.min(24 * 60 - 1, mins + dur);
+        const eh = Math.floor(endMins / 60), em = endMins % 60;
+        const end = `${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
+        d.timeBlock = {
+          date: d.dueDate || todayISO(),
+          start,
+          end,
         };
       }
       render();
       break;
+    }
     case "ptask-add-subtask":
       view.parentTaskDraft.subtasks = [...(view.parentTaskDraft.subtasks || []), { id: uid("st"), title: "", done: false }];
       render();
