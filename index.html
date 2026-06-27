@@ -206,6 +206,36 @@
 <body>
 <div id="app"></div>
 
+<script>
+// Global error catcher — registers before the module script even parses.
+// If the main script fails to load or throws synchronously, this shows the error
+// instead of leaving the user with a blank screen.
+(function() {
+  function showBootError(label, msg, stack) {
+    var app = document.getElementById('app');
+    if (!app || app.querySelector('.boot-error-shown')) return;
+    app.innerHTML = '<div class="boot-error-shown" style="padding:40px 24px;font-family:system-ui,sans-serif;color:#0E2A47;background:#F7F4ED;min-height:100vh">' +
+      '<div style="max-width:560px;margin:0 auto">' +
+      '<div style="font-size:36px">⚠️</div>' +
+      '<h1 style="font-family:Georgia,serif;font-weight:800;margin:8px 0 4px;font-size:22px">' + label + '</h1>' +
+      '<div style="opacity:0.7;font-size:13px;margin-bottom:20px">Show this to whoever\'s debugging:</div>' +
+      '<pre style="background:#fff;padding:14px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);font-size:11px;line-height:1.4;overflow:auto;white-space:pre-wrap;word-break:break-word">' +
+      (msg || 'Unknown error') + '\n\n' + (stack || '') + '</pre>' +
+      '<button onclick="location.reload()" style="margin-top:20px;background:#0E2A47;color:#F7F4ED;border:none;border-radius:8px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer">Try again</button>' +
+      '</div></div>';
+  }
+  window.addEventListener('error', function(ev) {
+    var stack = (ev.error && ev.error.stack) ? ev.error.stack : (ev.filename + ':' + ev.lineno + ':' + ev.colno);
+    showBootError('Something broke on boot', ev.message, stack);
+  });
+  window.addEventListener('unhandledrejection', function(ev) {
+    var msg = (ev.reason && ev.reason.message) ? ev.reason.message : String(ev.reason);
+    var stack = (ev.reason && ev.reason.stack) ? ev.reason.stack : '';
+    showBootError('Boot promise failed', msg, stack);
+  });
+})();
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -360,6 +390,24 @@ const BG_PALETTES = {
   charcoal: { name: "Charcoal",    tint: "#2A2D33", card: "#363941", ink: "#F0EDE6", accent: "#D4A93C" },
 };
 
+/* Task icons for Parent Ops — curated set that maps cleanly to typical
+   tasks. ADHD research shows a visual anchor (icon) speeds task recognition
+   significantly compared to text alone, so every task gets one. */
+const TASK_ICONS = [
+  // Work & focus
+  "💻", "📊", "📞", "📧", "📝", "🎯", "📅", "✏️", "📋", "📌",
+  // Health & body
+  "🏃", "🧘", "💪", "🚴", "🥗", "💊", "🦷", "🩺", "😴", "🚿",
+  // Home & errands
+  "🏠", "🧺", "🛒", "🚗", "📦", "🔧", "🌱", "🍳", "🧹", "💡",
+  // Personal & relationships
+  "❤️", "👨‍👩‍👧", "📚", "🎨", "🎵", "☕", "🍷", "🐕", "📖", "✈️",
+  // Money & planning
+  "💰", "🏦", "📈", "💳", "🧾",
+  // Generic
+  "⭐", "🔔", "✨", "🎉", "🌟",
+];
+
 /* Chore library — curated suggestions with sensible defaults.
    Tap one in the wizard to autofill title, room, points, dollars, recurrence. */
 const CHORE_LIBRARY = [
@@ -508,6 +556,15 @@ const view = {
 // keyboard focus on mobile mid-type.
 window.__pinDraftUpdate = (val) => {
   view.pinDraft = val;
+};
+
+// Helper for inline oninput on the duration custom input. Updates the draft
+// without rendering (avoids stealing focus mid-keystroke).
+window.__ptaskDurationUpdate = (val) => {
+  if (view.parentTaskDraft) {
+    const n = parseInt(val, 10);
+    if (n > 0) view.parentTaskDraft.durationMin = n;
+  }
 };
 
 let toastTimer = null;
@@ -768,6 +825,187 @@ function checkAndCelebrate(user) {
   view.celebratedThisSession[key] = true;
   fireDayCelebration(user);
 }
+
+/* ============================================================
+   FOCUS TIMER — Tiimo-inspired visual countdown
+   Big SVG ring that drains as time passes. Reduces ADHD time blindness
+   by making "how much longer" visible at a glance. Pause/resume/extend/end.
+   ============================================================ */
+
+const focusState = {
+  taskId: null,
+  task: null,
+  durationSec: 0,
+  remainingSec: 0,
+  startTime: null,
+  pausedAt: null,
+  running: false,
+  tickInterval: null,
+};
+
+function startFocusSession(task) {
+  if (!task.durationMin || task.durationMin <= 0) {
+    showToast("No duration set", "Add a duration to use focus mode");
+    return;
+  }
+  // Close any open modals
+  setView({ showParentTaskModal: false });
+  view.parentTaskDraft = null;
+
+  focusState.taskId = task.id;
+  focusState.task = task;
+  focusState.durationSec = task.durationMin * 60;
+  focusState.remainingSec = focusState.durationSec;
+  focusState.startTime = Date.now();
+  focusState.pausedAt = null;
+  focusState.running = true;
+
+  if (focusState.tickInterval) clearInterval(focusState.tickInterval);
+  focusState.tickInterval = setInterval(focusTick, 1000);
+
+  renderFocusOverlay();
+}
+
+function focusTick() {
+  if (!focusState.running) return;
+  const elapsed = Math.floor((Date.now() - focusState.startTime) / 1000);
+  focusState.remainingSec = Math.max(0, focusState.durationSec - elapsed);
+  if (focusState.remainingSec === 0) {
+    focusState.running = false;
+    clearInterval(focusState.tickInterval);
+    // Subtle chime + visual; don't auto-close — user decides if task is done
+    renderFocusOverlay(true);
+    showToast("Time's up!", "Did you finish? Mark complete or extend if needed.");
+    return;
+  }
+  renderFocusOverlay();
+}
+
+function focusPause() {
+  focusState.running = false;
+  focusState.pausedAt = Date.now();
+  // Lock in remaining seconds based on current elapsed
+  const elapsed = Math.floor((focusState.pausedAt - focusState.startTime) / 1000);
+  focusState.remainingSec = Math.max(0, focusState.durationSec - elapsed);
+  renderFocusOverlay();
+}
+
+function focusResume() {
+  // Reset startTime so remaining seconds counts from now
+  focusState.durationSec = focusState.remainingSec;
+  focusState.startTime = Date.now();
+  focusState.running = true;
+  if (focusState.tickInterval) clearInterval(focusState.tickInterval);
+  focusState.tickInterval = setInterval(focusTick, 1000);
+  renderFocusOverlay();
+}
+
+function focusAddTime(extraMin) {
+  focusState.remainingSec += extraMin * 60;
+  if (focusState.running) {
+    focusState.durationSec = focusState.remainingSec;
+    focusState.startTime = Date.now();
+  } else {
+    focusState.durationSec = focusState.remainingSec;
+  }
+  renderFocusOverlay();
+}
+
+function focusEnd(markComplete) {
+  if (focusState.tickInterval) clearInterval(focusState.tickInterval);
+  const task = focusState.task;
+  const taskId = focusState.taskId;
+  // Reset state
+  focusState.taskId = null;
+  focusState.task = null;
+  focusState.running = false;
+  focusState.tickInterval = null;
+  // Remove overlay
+  const el = document.getElementById('focus-overlay');
+  if (el) el.remove();
+  // If marking complete, run through the regular toggle path (which also handles celebrate-check)
+  if (markComplete && taskId && task) {
+    const wasOpen = task.status !== "done";
+    const updated = state.parentTasks.map(t => t.id === taskId
+      ? { ...t, status: "done", completedAt: Date.now() }
+      : t);
+    let areas = state.parentAreas;
+    if (wasOpen && task.areaId) {
+      areas = areas.map(a => a.id === task.areaId ? { ...a, health: Math.min(1, a.health + 0.05) } : a);
+    }
+    setState({ parentTasks: updated, parentAreas: areas });
+    fireConfetti();
+    checkAndCelebrate(getActiveUser());
+  }
+}
+
+function renderFocusOverlay(timeUp = false) {
+  const task = focusState.task;
+  if (!task) return;
+  const total = focusState.durationSec || (task.durationMin * 60);
+  const remaining = focusState.remainingSec;
+  // Account for paused state: when paused, remaining is frozen
+  const elapsed = total - remaining;
+  const pct = total > 0 ? (elapsed / total) : 0;
+  // SVG ring: circumference = 2 * pi * r
+  const radius = 130;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ * pct;
+
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  const timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
+
+  const pri = TASK_PRIORITIES[task.priority || "med"];
+
+  let el = document.getElementById('focus-overlay');
+  const isNew = !el;
+  if (isNew) {
+    el = document.createElement('div');
+    el.id = 'focus-overlay';
+    document.body.appendChild(el);
+  }
+
+  el.innerHTML = `
+    <div style="position:fixed;inset:0;background:linear-gradient(135deg, #0E2A47 0%, #1a3a5c 100%);z-index:300;display:flex;align-items:center;justify-content:center;animation:${isNew?'celebration-fade-in 0.4s ease both':'none'}">
+      <div style="text-align:center;padding:24px;max-width:480px;width:100%">
+        <!-- Task header -->
+        <div style="font-size:48px;margin-bottom:6px">${escapeHtml(task.icon || '📋')}</div>
+        <div class="display-font" style="font-size:22px;font-weight:800;color:#F7F4ED;line-height:1.2">${escapeHtml(task.title)}</div>
+        <div class="mono-font" style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#D4A93C;margin-top:6px;opacity:0.85">${focusState.running ? 'Focusing' : (timeUp ? 'Time up' : 'Paused')}</div>
+
+        <!-- Big ring -->
+        <div style="position:relative;width:300px;height:300px;margin:30px auto 20px">
+          <svg width="300" height="300" viewBox="0 0 300 300" style="transform:rotate(-90deg)">
+            <circle cx="150" cy="150" r="${radius}" fill="none" stroke="rgba(247,244,237,0.1)" stroke-width="14"/>
+            <circle cx="150" cy="150" r="${radius}" fill="none" stroke="${timeUp ? '#9C2B2B' : '#D4A93C'}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transition:stroke-dashoffset 1s linear"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div class="display-font" style="font-size:64px;font-weight:900;color:#F7F4ED;line-height:1;font-variant-numeric:tabular-nums">${timeStr}</div>
+            <div class="mono-font" style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#F7F4ED;opacity:0.5;margin-top:8px">${fmtDuration(task.durationMin)} total</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap">
+          <button data-action="focus-add-time" data-min="5" style="background:rgba(247,244,237,0.1);border:1px solid rgba(247,244,237,0.2);color:#F7F4ED;border-radius:100px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">+5 min</button>
+          <button data-action="focus-pause" style="background:${focusState.running ? '#D4A93C' : '#0A4F37'};color:${focusState.running ? '#0E2A47' : '#F7F4ED'};border:none;border-radius:100px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;min-width:120px">${focusState.running ? '❚❚ Pause' : '▶ Resume'}</button>
+          <button data-action="focus-add-time" data-min="10" style="background:rgba(247,244,237,0.1);border:1px solid rgba(247,244,237,0.2);color:#F7F4ED;border-radius:100px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">+10 min</button>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">
+          <button data-action="focus-end" style="background:transparent;border:1px solid rgba(247,244,237,0.25);color:#F7F4ED;border-radius:100px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;opacity:0.8">End early</button>
+          <button data-action="focus-complete" style="background:#0A4F37;color:#F7F4ED;border:none;border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">✓ Mark complete</button>
+        </div>
+
+        <div style="font-size:11px;color:#F7F4ED;opacity:0.4;margin-top:24px;font-style:italic">
+          Stay with it. The ring is your friend.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 
 function fireDayCelebration(user) {
   const isKid = user.role === "kid";
@@ -1207,8 +1445,10 @@ function buildTabs() {
 
   let tabs;
   if (inParentOps) {
+    const inboxCount = (state.parentTasks || []).filter(t => t.ownerId === user.id && t.inbox && t.status !== "done").length;
     tabs = [
       { id: "plan",     label: "Plan",     icon: ic.calendar },
+      { id: "inbox",    label: `Inbox${inboxCount ? ` (${inboxCount})` : ''}`, icon: ic.alert },
       { id: "calendar", label: "Calendar", icon: ic.calendar },
       { id: "projects", label: "Projects", icon: ic.trending },
       { id: "travel",   label: "Travel",   icon: ic.store },
@@ -1416,9 +1656,24 @@ function fmtTimeBlock(tb) {
 
 function buildParentPlanView() {
   const user = getActiveUser();
-  const myTasks = parentTasksFor(user.id).filter(t => t.status !== "done");
+  const pref = user.viewPref || "timeline";
+  // Inline toggle pill — lets each user pick their preferred view in one tap
+  const toggle = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <div style="display:inline-flex;background:rgba(14,42,71,0.06);border-radius:100px;padding:3px;gap:2px">
+        <button data-action="set-view-pref" data-pref="timeline" style="background:${pref==='timeline'?'var(--bg-card)':'transparent'};color:var(--bg-ink);border:none;border-radius:100px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:${pref==='timeline'?'0 1px 3px rgba(0,0,0,0.08)':'none'}">📊 Timeline</button>
+        <button data-action="set-view-pref" data-pref="list" style="background:${pref==='list'?'var(--bg-card)':'transparent'};color:var(--bg-ink);border:none;border-radius:100px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:${pref==='list'?'0 1px 3px rgba(0,0,0,0.08)':'none'}">📋 List</button>
+      </div>
+    </div>`;
 
-  // Buckets
+  const body = pref === "timeline" ? buildParentPlanTimelineView(user) : buildParentPlanListView(user);
+  return toggle + body;
+}
+
+function buildParentPlanListView(user) {
+  const myTasks = parentTasksFor(user.id).filter(t => t.status !== "done" && !t.inbox);
+
+  // Buckets — note: "overdue" is gently relabeled "carry-forward"
   const overdue = myTasks.filter(t => t.dueDate && t.dueDate < todayISO()).sort((a,b) => a.dueDate.localeCompare(b.dueDate));
   const today   = myTasks.filter(t => t.dueDate === todayISO());
   const tomorrow= myTasks.filter(t => t.dueDate === addDaysISO(todayISO(), 1));
@@ -1430,22 +1685,23 @@ function buildParentPlanView() {
       <div class="card slide-up" style="padding:40px;text-align:center">
         <div style="font-size:48px">🎯</div>
         <div class="display-font" style="font-size:24px;font-weight:800;margin-top:8px">Your plan is clear</div>
-        <div style="opacity:0.7;margin-top:6px">Tap the + button to add a task or project.</div>
+        <div style="opacity:0.7;margin-top:6px">Tap the + button to add a task or project, or use the Inbox tab to brain dump first.</div>
       </div>`;
   }
 
-  const section = (title, items, accent) => items.length ? `
+  const section = (title, items, accent, sub) => items.length ? `
     <div style="margin-bottom:18px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
         <div class="mono-font" style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;opacity:0.7;color:${accent}">${escapeHtml(title)}</div>
         <div style="font-size:11px;opacity:0.5">${items.length}</div>
+        ${sub ? `<div style="font-size:11px;opacity:0.6;font-style:italic">${sub}</div>` : ''}
       </div>
       <div style="display:grid;gap:8px">${items.map((t,i) => parentTaskRowHTML(t, i)).join('')}</div>
     </div>
   ` : '';
 
   return `
-    ${section("Overdue", overdue, "#9C2B2B")}
+    ${section("Carry forward", overdue, "#5A7080", overdue.length > 0 ? "from earlier — reschedule or do today" : null)}
     ${section("Today", today, "var(--bg-accent)")}
     ${section("Tomorrow", tomorrow, "#0A3091")}
     ${section("Later", later, "#5A7080")}
@@ -1453,17 +1709,181 @@ function buildParentPlanView() {
   `;
 }
 
+/* ============================================================
+   TIIMO-STYLE VISUAL TIMELINE
+   Renders the user's day as a vertical hour grid (6am–11pm by default),
+   with timed tasks as colored blocks sized proportionally to duration,
+   a "now" line that drifts down through the day, and an "anytime today"
+   lane for tasks that are due today but lack a specific time block.
+   ============================================================ */
+
+const TIMELINE_START_HOUR = 6;   // first hour shown
+const TIMELINE_END_HOUR   = 23;  // last hour shown (exclusive of next)
+const TIMELINE_HOUR_PX    = 64;  // height of one hour row
+
+// Parse "HH:MM" → minutes since midnight. Returns null on invalid.
+function timeToMin(s) {
+  if (!s || !/^\d{1,2}:\d{2}$/.test(s)) return null;
+  const [h, m] = s.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function buildParentPlanTimelineView(user) {
+  const todayStr = todayISO();
+  const myTasks = parentTasksFor(user.id).filter(t => t.status !== "done" && !t.inbox);
+  const todayTasks = myTasks.filter(t => t.dueDate === todayStr);
+
+  // Split into timed (has timeBlock for today) vs anytime
+  const timed   = todayTasks.filter(t => t.timeBlock && t.timeBlock.date === todayStr && t.timeBlock.start);
+  const anytime = todayTasks.filter(t => !t.timeBlock || t.timeBlock.date !== todayStr || !t.timeBlock.start);
+
+  // Carry-forward (overdue) — shown above as a gentle prompt, not red shame
+  const carry = myTasks.filter(t => t.dueDate && t.dueDate < todayStr);
+
+  // Current time position
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const startMin = TIMELINE_START_HOUR * 60;
+  const endMin = TIMELINE_END_HOUR * 60;
+  const nowVisible = nowMin >= startMin && nowMin <= endMin;
+  const nowPx = ((nowMin - startMin) / 60) * TIMELINE_HOUR_PX;
+
+  // Build hour rows
+  const hourRows = [];
+  for (let h = TIMELINE_START_HOUR; h <= TIMELINE_END_HOUR; h++) {
+    const label = h === 12 ? "12 pm" : h < 12 ? `${h} am` : `${h - 12} pm`;
+    hourRows.push(`
+      <div style="position:absolute;left:0;right:0;top:${(h - TIMELINE_START_HOUR) * TIMELINE_HOUR_PX}px;height:${TIMELINE_HOUR_PX}px;border-top:1px solid rgba(14,42,71,0.08);pointer-events:none">
+        <span class="mono-font" style="position:absolute;left:8px;top:-7px;background:var(--bg-tint);padding:0 6px;font-size:10px;opacity:0.55;font-weight:600">${label}</span>
+      </div>
+    `);
+  }
+
+  // Build timed blocks
+  const blocks = timed.map((t, i) => {
+    const startM = timeToMin(t.timeBlock.start) ?? startMin;
+    const endM   = timeToMin(t.timeBlock.end) ?? (startM + (t.durationMin || 30));
+    const top    = ((startM - startMin) / 60) * TIMELINE_HOUR_PX;
+    const height = Math.max(36, ((endM - startM) / 60) * TIMELINE_HOUR_PX - 4);
+    const pri = TASK_PRIORITIES[t.priority || "med"];
+    const area = state.parentAreas.find(a => a.id === t.areaId);
+    const isPast = endM < nowMin;
+    const isNow = startM <= nowMin && nowMin < endM;
+    const focusable = !isPast && t.durationMin;
+    return `
+      <div class="timeline-block ${isNow ? 'timeline-block-now' : ''}" style="position:absolute;left:62px;right:8px;top:${top}px;height:${height}px;background:${area ? `linear-gradient(135deg, ${pri.color}22, var(--bg-card))` : 'var(--bg-card)'};border-left:4px solid ${pri.color};border-radius:10px;padding:8px 10px;box-shadow:0 1px 4px rgba(14,42,71,0.08);${isPast ? 'opacity:0.45;' : ''}cursor:pointer;overflow:hidden;animation:slide-up 0.4s cubic-bezier(.2,.8,.4,1) both;animation-delay:${i*0.04}s" data-action="edit-parent-task" data-id="${t.id}">
+        <div style="display:flex;align-items:center;gap:8px;height:100%">
+          <div style="font-size:${height > 56 ? '22px' : '18px'};line-height:1;flex-shrink:0">${escapeHtml(t.icon || '📋')}</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">
+            <div style="font-weight:700;font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(t.title)}</div>
+            <div class="mono-font" style="font-size:10px;opacity:0.7;margin-top:2px">${escapeHtml(fmtTimeBlock(t.timeBlock))}${t.durationMin ? ` · ${fmtDuration(t.durationMin)}` : ''}</div>
+          </div>
+          ${focusable ? `
+            <button data-action="start-focus" data-id="${t.id}" style="background:rgba(14,42,71,0.08);border:none;border-radius:100px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--bg-ink);flex-shrink:0;font-family:inherit" onclick="event.stopPropagation()">▶ Focus</button>
+          ` : ''}
+          <button data-action="toggle-parent-task" data-id="${t.id}" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--bg-ink);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--bg-ink);opacity:0.4;padding:0" onclick="event.stopPropagation()">${ic.circle}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Auto-scroll target so the "now" line is near the top of the visible area
+  const scrollTargetPx = Math.max(0, nowPx - 100);
+
+  const carryHTML = carry.length ? `
+    <div class="card slide-up" style="padding:12px 14px;margin-bottom:12px;background:var(--bg-card);border-left:3px solid #C4623F">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:14px">↪</span>
+        <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;opacity:0.7">Carry forward · ${carry.length}</div>
+      </div>
+      <div style="font-size:12px;opacity:0.75;margin-bottom:8px">From earlier — pull into today or push out, no pressure.</div>
+      <div style="display:grid;gap:6px">
+        ${carry.slice(0, 4).map(t => `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(14,42,71,0.04);border-radius:8px;font-size:13px">
+            <span style="font-size:16px">${escapeHtml(t.icon || '📋')}</span>
+            <span style="flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(t.title)}</span>
+            <button data-action="reschedule-today" data-id="${t.id}" style="background:transparent;border:1px solid rgba(14,42,71,0.2);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--bg-ink);font-family:inherit">Today</button>
+            <button data-action="edit-parent-task" data-id="${t.id}" style="background:transparent;border:none;cursor:pointer;opacity:0.5;padding:2px;color:inherit">${ic.edit}</button>
+          </div>
+        `).join('')}
+        ${carry.length > 4 ? `<div style="font-size:11px;opacity:0.5;text-align:center;padding-top:2px">+${carry.length - 4} more</div>` : ''}
+      </div>
+    </div>
+  ` : '';
+
+  const anytimeHTML = anytime.length ? `
+    <div class="card slide-up" style="padding:14px;margin-bottom:12px">
+      <div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;opacity:0.7;margin-bottom:8px">Anytime today · ${anytime.length}</div>
+      <div style="display:grid;gap:6px">
+        ${anytime.map((t, i) => `
+          <div class="slide-up" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-tint);border-left:3px solid ${TASK_PRIORITIES[t.priority||'med'].color};border-radius:8px;animation-delay:${i*0.03}s" data-action="edit-parent-task" data-id="${t.id}">
+            <span style="font-size:18px">${escapeHtml(t.icon || '📋')}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(t.title)}</div>
+              ${t.durationMin ? `<div class="mono-font" style="font-size:10px;opacity:0.65;margin-top:1px">${fmtDuration(t.durationMin)}</div>` : ''}
+            </div>
+            ${t.durationMin ? `<button data-action="start-focus" data-id="${t.id}" style="background:rgba(14,42,71,0.08);border:none;border-radius:100px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--bg-ink);font-family:inherit" onclick="event.stopPropagation()">▶</button>` : ''}
+            <button data-action="toggle-parent-task" data-id="${t.id}" style="width:22px;height:22px;border-radius:5px;border:2px solid var(--bg-ink);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--bg-ink);opacity:0.4;padding:0" onclick="event.stopPropagation()">${ic.circle}</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  const emptyTimed = !timed.length;
+
+  return `
+    ${carryHTML}
+    ${anytimeHTML}
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid rgba(14,42,71,0.08);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="display-font" style="font-size:18px;font-weight:800">${new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+          <div style="font-size:11px;opacity:0.65">${timed.length} scheduled · ${anytime.length} anytime</div>
+        </div>
+        ${nowVisible ? `<div class="mono-font" style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;opacity:0.7;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:100px;background:#9C2B2B;animation:pulse-glow 2s infinite"></span>${now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>` : ''}
+      </div>
+      <div id="timeline-scroll" data-scroll-target="${scrollTargetPx}" style="position:relative;height:520px;overflow-y:auto;background:var(--bg-tint)">
+        <div style="position:relative;height:${(TIMELINE_END_HOUR - TIMELINE_START_HOUR + 1) * TIMELINE_HOUR_PX}px">
+          ${hourRows.join('')}
+          ${nowVisible ? `
+            <div style="position:absolute;left:0;right:0;top:${nowPx}px;height:0;border-top:2px solid #9C2B2B;z-index:5;pointer-events:none">
+              <div style="position:absolute;left:54px;top:-5px;width:10px;height:10px;border-radius:100px;background:#9C2B2B;box-shadow:0 0 0 4px rgba(156,43,43,0.18)"></div>
+            </div>
+          ` : ''}
+          ${blocks || (emptyTimed ? `
+            <div style="position:absolute;left:62px;right:8px;top:${(9 - TIMELINE_START_HOUR) * TIMELINE_HOUR_PX}px;padding:24px;background:var(--bg-card);border-radius:10px;border:2px dashed rgba(14,42,71,0.12);text-align:center;opacity:0.7">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">No scheduled tasks today</div>
+              <div style="font-size:11px;opacity:0.7">Add a time block to a task to see it on the timeline</div>
+            </div>
+          ` : '')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function fmtDuration(min) {
+  if (!min) return '';
+  if (min < 60) return `${min}m`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+
 function parentTaskRowHTML(task, idx) {
   const area = state.parentAreas.find(a => a.id === task.areaId);
   const pri = TASK_PRIORITIES[task.priority || "med"];
   const isProject = task.kind === "project";
   const progress = isProject ? projectProgress(task) : null;
-  const overdue = task.dueDate && task.dueDate < todayISO();
+  const isCarryForward = task.dueDate && task.dueDate < todayISO();
   const tb = task.timeBlock;
 
   return `
     <div class="card slide-up" style="padding:14px;display:flex;align-items:center;gap:12px;animation-delay:${idx * 0.03}s;border-left:3px solid ${pri.color}">
-      <button data-action="toggle-parent-task" data-id="${task.id}" style="width:36px;height:36px;border-radius:8px;border:2px solid var(--bg-ink);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--bg-ink);opacity:0.4">
+      <div style="font-size:24px;flex-shrink:0;width:28px;text-align:center">${escapeHtml(task.icon || '📋')}</div>
+      <button data-action="toggle-parent-task" data-id="${task.id}" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--bg-ink);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--bg-ink);opacity:0.4;padding:0">
         ${task.status === "done" ? ic.check : ic.circle}
       </button>
       <div style="flex:1;min-width:0">
@@ -1474,21 +1894,66 @@ function parentTaskRowHTML(task, idx) {
         </div>
         <div style="display:flex;align-items:center;gap:10px;font-size:12px;opacity:0.7;margin-top:2px;flex-wrap:wrap">
           ${area ? `<span>${area.emoji} ${escapeHtml(area.name)}</span>` : ''}
-          ${task.dueDate ? `<span style="color:${overdue?'#9C2B2B':'inherit'};font-weight:${overdue?600:400}">📅 ${escapeHtml(fmtRelative(task.dueDate))}</span>` : ''}
+          ${task.dueDate ? `<span style="color:${isCarryForward?'#C4623F':'inherit'};font-weight:${isCarryForward?600:400}">📅 ${escapeHtml(fmtRelative(task.dueDate))}</span>` : ''}
           ${tb && tb.start ? `<span>🕐 ${escapeHtml(fmtTimeBlock(tb))}</span>` : ''}
+          ${task.durationMin ? `<span>⏱ ${fmtDuration(task.durationMin)}</span>` : ''}
           ${isProject && progress !== null ? `<span>${progress}% (${(task.subtasks||[]).filter(s=>s.done).length}/${(task.subtasks||[]).length})</span>` : ''}
         </div>
         ${isProject && progress !== null ? `
           <div class="progress-track" style="margin-top:6px"><div class="progress-fill" style="width:${progress}%"></div></div>
         ` : ''}
       </div>
+      ${task.durationMin && task.status !== "done" ? `<button data-action="start-focus" data-id="${task.id}" style="background:rgba(14,42,71,0.08);border:none;border-radius:100px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--bg-ink);flex-shrink:0;font-family:inherit">▶ Focus</button>` : ''}
       <button data-action="edit-parent-task" data-id="${task.id}" style="background:transparent;border:none;cursor:pointer;opacity:0.5;padding:4px;color:inherit">${ic.edit}</button>
     </div>`;
 }
 
+
+
+function buildParentInboxView() {
+  const user = getActiveUser();
+  const inboxTasks = (state.parentTasks || []).filter(t => t.ownerId === user.id && t.inbox && t.status !== "done");
+
+  if (!inboxTasks.length) {
+    return `
+      <div class="card slide-up" style="padding:40px;text-align:center">
+        <div style="font-size:48px">🧠</div>
+        <div class="display-font" style="font-size:24px;font-weight:800;margin-top:8px">Brain dump zone</div>
+        <div style="opacity:0.7;margin-top:6px;max-width:380px;margin-left:auto;margin-right:auto">Got something on your mind? Capture it here without committing to when. Tap + to dump it in, then schedule it later when you have a sec.</div>
+      </div>`;
+  }
+
+  return `
+    <div class="card slide-up" style="padding:16px;margin-bottom:14px;background:linear-gradient(135deg, rgba(212,169,60,0.06), transparent)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">🧠</span>
+        <div style="flex:1">
+          <div class="display-font" style="font-size:18px;font-weight:800">Brain dump</div>
+          <div style="font-size:12px;opacity:0.7">Tap a task to schedule it. Tap + to add more.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;gap:8px">
+      ${inboxTasks.map((t, i) => `
+        <div class="card slide-up" style="padding:12px;display:flex;align-items:center;gap:10px;animation-delay:${i*0.03}s;border-left:3px solid ${TASK_PRIORITIES[t.priority||'med'].color};cursor:pointer" data-action="edit-parent-task" data-id="${t.id}">
+          <div style="font-size:22px;flex-shrink:0;width:28px;text-align:center">${escapeHtml(t.icon || '📋')}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:14px">${escapeHtml(t.title)}</div>
+            <div style="font-size:11px;opacity:0.65;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
+              ${t.durationMin ? `<span>⏱ ${fmtDuration(t.durationMin)}</span>` : ''}
+              ${(t.notes && t.notes.trim()) ? `<span>📝 has notes</span>` : ''}
+            </div>
+          </div>
+          <button data-action="schedule-from-inbox" data-id="${t.id}" style="background:var(--bg-ink);color:var(--bg-card);border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0" onclick="event.stopPropagation()">Schedule</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function buildParentCalendarView() {
   const user = getActiveUser();
-  const myTasks = parentTasksFor(user.id).filter(t => t.status !== "done");
+  const myTasks = parentTasksFor(user.id).filter(t => t.status !== "done" && !t.inbox);
 
   // 7-day rolling view
   const days = [];
@@ -2856,11 +3321,37 @@ function parentTaskModalHTML() {
       `).join('')}
     </div>
 
-    <!-- Title -->
-    <label style="display:block;margin-bottom:14px">
-      <span class="field-label">Title</span>
-      <input id="ptask-title" class="input-base" value="${escapeHtml(d.title)}" placeholder="What needs to happen?" autofocus/>
-    </label>
+    <!-- Title with inline icon picker -->
+    <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:14px">
+      <div style="position:relative">
+        <span class="field-label">Icon</span>
+        <button data-action="ptask-toggle-icons" type="button" style="width:54px;height:42px;border-radius:8px;border:1px solid rgba(0,0,0,0.15);background:var(--bg-card);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">${d.icon || '📋'}</button>
+        ${view.iconPickerOpen ? `
+          <div style="position:absolute;top:100%;left:0;margin-top:6px;background:var(--bg-card);border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:8px;box-shadow:0 12px 32px rgba(14,42,71,0.15);z-index:10;width:280px;display:grid;grid-template-columns:repeat(8, 1fr);gap:2px;max-height:220px;overflow-y:auto">
+            ${TASK_ICONS.map(ic => `
+              <button data-action="ptask-set-icon" data-icon="${ic}" type="button" style="width:32px;height:32px;font-size:18px;background:${d.icon===ic?'var(--bg-tint)':'transparent'};border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">${ic}</button>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+      <label style="flex:1">
+        <span class="field-label">Title</span>
+        <input id="ptask-title" class="input-base" value="${escapeHtml(d.title)}" placeholder="What needs to happen?" autofocus/>
+      </label>
+    </div>
+
+    <!-- Duration estimate -->
+    <div style="margin-bottom:14px">
+      <span class="field-label">How long? <span style="opacity:0.6;font-weight:400">(rough estimate is fine)</span></span>
+      <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+        ${[15, 30, 45, 60, 90, 120].map(min => `
+          <button data-action="ptask-set-duration" data-min="${min}" type="button" style="flex:1;min-width:60px;background:${d.durationMin === min ? 'var(--bg-ink)' : 'white'};color:${d.durationMin === min ? 'var(--bg-card)' : 'var(--bg-ink)'};border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:8px 4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            ${min < 60 ? `${min}m` : min === 60 ? '1h' : `${min/60}h`}
+          </button>
+        `).join('')}
+        <input id="ptask-duration-custom" type="number" min="1" max="600" step="5" class="input-base" placeholder="custom" value="${d.durationMin && ![15,30,45,60,90,120].includes(d.durationMin) ? d.durationMin : ''}" style="flex:1;min-width:80px;font-size:12px" oninput="window.__ptaskDurationUpdate && window.__ptaskDurationUpdate(this.value)"/>
+      </div>
+    </div>
 
     <!-- Area + Priority -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
@@ -2987,10 +3478,11 @@ function render() {
   let mainHTML = "";
   if (workspace === "parent-ops") {
     // Parent Ops view set
-    if (view.tab === "today" || !["plan","areas","calendar","projects","travel"].includes(view.tab)) {
+    if (view.tab === "today" || !["plan","inbox","areas","calendar","projects","travel"].includes(view.tab)) {
       view.tab = "plan";
     }
     if (view.tab === "plan")     mainHTML = buildParentPlanView();
+    if (view.tab === "inbox")    mainHTML = buildParentInboxView();
     if (view.tab === "calendar") mainHTML = buildParentCalendarView();
     if (view.tab === "projects") mainHTML = buildParentProjectsView();
     if (view.tab === "travel")   mainHTML = buildTravelView();
@@ -3014,7 +3506,7 @@ function render() {
   // Pick the right FAB action based on workspace/tab
   let fabAction = null, fabLabel = "";
   if (workspace === "parent-ops") {
-    if (view.tab === "plan" || view.tab === "calendar" || view.tab === "projects") {
+    if (view.tab === "plan" || view.tab === "calendar" || view.tab === "projects" || view.tab === "inbox") {
       fabAction = "open-add-parent-task"; fabLabel = "Add task";
     } else if (view.tab === "travel") {
       fabAction = "open-add-trip"; fabLabel = "Add trip";
@@ -3033,6 +3525,12 @@ function render() {
     <footer class="mono-font" style="text-align:center;padding:40px 24px;opacity:0.5;font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Boyd Family Operations · v1.0</footer>
     ${buildModal()}
   `;
+
+  // Post-render: scroll timeline to position the "now" line near the top
+  const ts = document.getElementById('timeline-scroll');
+  if (ts && ts.dataset.scrollTarget) {
+    ts.scrollTop = parseInt(ts.dataset.scrollTarget, 10) || 0;
+  }
 }
 
 /* ============================================================
@@ -3384,12 +3882,15 @@ document.addEventListener('click', async (e) => {
         ownerId: getActiveUser().id,
         areaId: state.parentAreas[0]?.id || null,
         priority: "med",
-        dueDate: todayISO(),
+        dueDate: view.tab === "inbox" ? null : todayISO(),
         timeBlock: null,
         subtasks: [],
         recurrence: null,
         notes: "",
         status: "open",
+        icon: "📋",
+        durationMin: 30,
+        inbox: view.tab === "inbox", // tasks created from the inbox start unscheduled
       };
       setView({ showParentTaskModal: true });
       break;
@@ -3445,11 +3946,64 @@ document.addEventListener('click', async (e) => {
       }
       break;
     }
-    case "ptask-set-kind":
+    case "set-view-pref":
+      setState({ members: state.members.map(m => m.id === getActiveUser().id ? { ...m, viewPref: target.dataset.pref } : m) });
+      break;
+    case "schedule-from-inbox": {
+      // Open the task edit modal with the inbox flag cleared and dueDate set to today
+      const t = state.parentTasks.find(x => x.id === target.dataset.id);
+      if (t) {
+        view.parentTaskDraft = JSON.parse(JSON.stringify(t));
+        view.parentTaskDraft.inbox = false;
+        view.parentTaskDraft.dueDate = view.parentTaskDraft.dueDate || todayISO();
+        setView({ showParentTaskModal: true });
+      }
+      break;
+    }
+    case "reschedule-today": {
+      // One-tap pull a carry-forward into today (Tiimo-style gentle reschedule)
+      const id = target.dataset.id;
+      setState({
+        parentTasks: state.parentTasks.map(t => t.id === id ? { ...t, dueDate: todayISO() } : t)
+      });
+      showToast("Moved to today", "No pressure — you got this");
+      break;
+    }
+    case "start-focus": {
+      const t = state.parentTasks.find(x => x.id === target.dataset.id);
+      if (!t) break;
+      startFocusSession(t);
+      break;
+    }
+    case "focus-pause":
+      if (focusState.running) focusPause(); else focusResume();
+      break;
+    case "focus-add-time":
+      focusAddTime(parseInt(target.dataset.min, 10) || 5);
+      break;
+    case "focus-end":
+      focusEnd(false);
+      break;
+    case "focus-complete":
+      focusEnd(true);
+      break;
       view.parentTaskDraft.kind = target.dataset.kind;
       if (target.dataset.kind !== "project") view.parentTaskDraft.subtasks = [];
       if (target.dataset.kind !== "recurring") view.parentTaskDraft.recurrence = null;
       else if (!view.parentTaskDraft.recurrence) view.parentTaskDraft.recurrence = "weekly";
+      render();
+      break;
+    case "ptask-toggle-icons":
+      view.iconPickerOpen = !view.iconPickerOpen;
+      render();
+      break;
+    case "ptask-set-icon":
+      view.parentTaskDraft.icon = target.dataset.icon;
+      view.iconPickerOpen = false;
+      render();
+      break;
+    case "ptask-set-duration":
+      view.parentTaskDraft.durationMin = parseInt(target.dataset.min, 10);
       render();
       break;
     case "ptask-set-priority":
@@ -3493,6 +4047,11 @@ document.addEventListener('click', async (e) => {
       if (notesEl) d.notes = notesEl.value;
       const dueEl = document.getElementById('ptask-due');
       if (dueEl) d.dueDate = dueEl.value || null;
+      const durEl = document.getElementById('ptask-duration-custom');
+      if (durEl && durEl.value) {
+        const n = parseInt(durEl.value, 10);
+        if (n > 0) d.durationMin = n;
+      }
       if (d.timeBlock) {
         const tbDate = document.getElementById('ptask-tb-date');
         const tbStart = document.getElementById('ptask-tb-start');
@@ -4110,6 +4669,30 @@ window.addEventListener('load', () => {
       <div style="font-size:12px;opacity:0.6">Connecting to Firestore</div>
     </div>`;
 
+  // Catch any boot-time error and show it on screen instead of just going blank.
+  // This lets the user (or me, if I'm debugging) see what broke.
+  const showBootError = (label, msg, stack) => {
+    const app = document.getElementById('app');
+    if (app && !app.querySelector('.boot-error-shown')) {
+      app.innerHTML = `
+        <div class="boot-error-shown" style="padding:40px 24px;font-family:system-ui,sans-serif;color:#0E2A47;background:#F7F4ED;min-height:100vh">
+          <div style="max-width:560px;margin:0 auto">
+            <div style="font-size:36px">⚠️</div>
+            <h1 style="font-family:'Fraunces',serif;font-weight:800;margin:8px 0 4px">${label}</h1>
+            <div style="opacity:0.7;font-size:13px;margin-bottom:20px">Show this to whoever's debugging:</div>
+            <pre style="background:#fff;padding:14px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);font-size:11px;line-height:1.4;overflow:auto;white-space:pre-wrap;word-break:break-word">${(msg || 'Unknown error') + '\n\n' + (stack || '')}</pre>
+            <button onclick="location.reload()" style="margin-top:20px;background:#0E2A47;color:#F7F4ED;border:none;border-radius:8px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer">Try again</button>
+          </div>
+        </div>`;
+    }
+  };
+  window.addEventListener('error', (ev) => {
+    showBootError('Something broke on boot', ev.message, ev.error?.stack || (ev.filename + ':' + ev.lineno + ':' + ev.colno));
+  });
+  window.addEventListener('unhandledrejection', (ev) => {
+    showBootError('Boot promise failed', ev.reason?.message || String(ev.reason), ev.reason?.stack);
+  });
+
   let loaded = null;
   try {
     loaded = await db.load();
@@ -4136,6 +4719,13 @@ window.addEventListener('load', () => {
     ...m,
     bgPalette: m.bgPalette || "cream",
     bgWallpaper: m.bgWallpaper === undefined ? null : m.bgWallpaper,
+    viewPref: m.viewPref || "timeline", // 'timeline' (Tiimo-style) or 'list' (classic)
+  }));
+  // Migrate parent tasks: ensure icon and durationMin defaults
+  state.parentTasks = (state.parentTasks || []).map(t => ({
+    ...t,
+    icon: t.icon || "📋",
+    durationMin: t.durationMin === undefined ? null : t.durationMin,
   }));
 
   // refresh daily bonus
@@ -4171,6 +4761,12 @@ window.addEventListener('load', () => {
       ...m,
       bgPalette: m.bgPalette || "cream",
       bgWallpaper: m.bgWallpaper === undefined ? null : m.bgWallpaper,
+      viewPref: m.viewPref || "timeline",
+    }));
+    remoteState.parentTasks = (remoteState.parentTasks || []).map(t => ({
+      ...t,
+      icon: t.icon || "📋",
+      durationMin: t.durationMin === undefined ? null : t.durationMin,
     }));
     // Don't overwrite if the remote is identical (avoids unnecessary re-renders)
     if (JSON.stringify(remoteState) === JSON.stringify(state)) return;
